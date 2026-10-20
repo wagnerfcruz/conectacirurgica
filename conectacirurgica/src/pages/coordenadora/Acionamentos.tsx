@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Calendar, MapPin, Search, X, Plus, Trash2, Edit2, AlertCircle, Download, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import { useStore } from '../../store/useStore';
-import type { Demanda, ProdutoMaterial, EquipamentoServico } from '../../store/useStore';
+import type { Demanda } from '../../store/useStore';
 import { format, parseISO } from 'date-fns';
 import html2canvas from 'html2canvas';
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { format, parseISO, addDays, isBefore } from 'date-fns';
-import { Check, X, Calendar as CalendarIcon, Trash2, Clock } from 'lucide-react';
+import { format, parseISO, addDays } from 'date-fns';
+import { Check, X, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useStore } from '../../store/useStore';
 

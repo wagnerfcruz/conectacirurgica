@@ -1,8 +1,9 @@
-import { Upload, FileSpreadsheet, AlertTriangle, CheckCircle, Download, FileType } from 'lucide-react';
+import { FileSpreadsheet, AlertTriangle, CheckCircle, Download, FileType } from 'lucide-react';
 import { useState, useRef } from 'react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import { useStore, Demanda } from '../../store/useStore';
+import type { Demanda } from '../../store/useStore';
+import { useStore } from '../../store/useStore';
 
 export default function MapaCirurgico() {
   const { addDemandas, demandas, updateDemanda } = useStore();
@@ -257,7 +258,7 @@ export default function MapaCirurgico() {
         getValue(colProdutosDoacao) ? `Produtos p/ Doação: ${getValue(colProdutosDoacao)}` : null
       ].filter(Boolean).join('\n\n');
 
-      const isEmergencia = String(row[colEmergencia]).toUpperCase() === 'SIM';
+      const isEmergencia = colEmergencia ? String(row[colEmergencia]).toUpperCase() === 'SIM' : false;
 
       const existingDemanda = demandas.find(d => d.mc === rawMc);
 
