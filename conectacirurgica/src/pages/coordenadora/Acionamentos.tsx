@@ -14,6 +14,7 @@ export default function Acionamentos() {
   const [editingDemanda, setEditingDemanda] = useState<Partial<Demanda> | null>(null);
 
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const [previewInvite, setPreviewInvite] = useState<number | null>(null);
 
   const demandasAbertas = demandas.filter(d => ['pendente', 'alocando', 'cancelamento_solicitado'].includes(d.status));
   const selectedDemanda = demandas.find(d => d.id === selectedDemandaId);
@@ -55,9 +56,14 @@ export default function Acionamentos() {
 
   const compativeis = selectedDemanda ? getProfissionaisCompativeis(selectedDemanda) : [];
 
-  const handleSendConvite = (instrumentadorId: number) => {
-    if (!selectedDemandaId) return;
-    enviarConvite(selectedDemandaId, instrumentadorId);
+  const handleOpenPreview = (instrumentadorId: number) => {
+    setPreviewInvite(instrumentadorId);
+  };
+
+  const handleSendConvite = () => {
+    if (!selectedDemandaId || !previewInvite) return;
+    enviarConvite(selectedDemandaId, previewInvite);
+    setPreviewInvite(null);
     setSelectedDemandaId(null);
   };
 
@@ -231,7 +237,7 @@ export default function Acionamentos() {
                   </div>
                   <button 
                     disabled={!disponivel}
-                    onClick={() => handleSendConvite(prof.id)}
+                    onClick={() => handleOpenPreview(prof.id)}
                     className={clsx(
                       "px-4 py-2 rounded-lg font-medium text-sm transition-colors",
                       disponivel 
@@ -253,6 +259,52 @@ export default function Acionamentos() {
           </div>
         )}
       </div>
+
+      {/* Modal Preview Convite */}
+      {previewInvite && selectedDemanda && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-slate-100">
+              <h2 className="text-lg font-bold text-slate-900">Prévia do Convite</h2>
+              <button onClick={() => setPreviewInvite(null)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <p className="text-sm text-slate-600 mb-2">Assim que o profissional receberá o acionamento no painel:</p>
+              
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm relative">
+                <span className="inline-block px-2 py-1 bg-primary-100 text-primary-700 text-xs font-bold rounded mb-2 uppercase tracking-wider">
+                  Convite Recebido
+                </span>
+                <h3 className="font-bold text-lg text-slate-900 leading-tight">{selectedDemanda.procedimento}</h3>
+                <p className="text-sm text-slate-600 mt-1">{selectedDemanda.medico}</p>
+                {selectedDemanda.valorFreelancer && (
+                  <p className="text-sm font-bold text-emerald-600 mt-1">Valor: {selectedDemanda.valorFreelancer}</p>
+                )}
+                <div className="mt-3 bg-white p-3 rounded-xl border border-slate-100 text-sm text-slate-600 space-y-1">
+                  <p><strong>Data:</strong> {formatDate(selectedDemanda.data)}</p>
+                  <p><strong>Hora:</strong> {selectedDemanda.hora}</p>
+                  <p><strong>Local:</strong> {selectedDemanda.hospital}</p>
+                </div>
+                <div className="mt-3 p-2 bg-amber-50 text-amber-800 text-xs rounded border border-amber-200 text-center">
+                  O nome do paciente é omitido nesta etapa.
+                </div>
+              </div>
+
+            </div>
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+              <button onClick={() => setPreviewInvite(null)} className="px-4 py-2 text-sm font-medium text-slate-600">Cancelar</button>
+              <button 
+                onClick={handleSendConvite} 
+                className="px-4 py-2 bg-primary-600 text-white rounded text-sm font-bold hover:bg-primary-700"
+              >
+                Confirmar e Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Criação / Edição de Demanda */}
       {isModalOpen && editingDemanda && (

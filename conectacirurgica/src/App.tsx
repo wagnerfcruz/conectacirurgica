@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import DashboardInstrumentador from './pages/instrumentador/Dashboard';
 import Disponibilidade from './pages/instrumentador/Disponibilidade';
 import Historico from './pages/instrumentador/Historico';
+import Perfil from './pages/instrumentador/Perfil';
 
 // Coordenadora Pages
 import DashboardCoordenadora from './pages/coordenadora/Dashboard';
@@ -28,6 +29,7 @@ function App() {
           <Route index element={<DashboardInstrumentador />} />
           <Route path="disponibilidade" element={<Disponibilidade />} />
           <Route path="historico" element={<Historico />} />
+          <Route path="perfil" element={<Perfil />} />
         </Route>
 
         {/* Coordenadora Routes */}

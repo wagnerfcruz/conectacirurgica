@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, MapPin, Clock, AlertTriangle, X, FileText, CheckCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Clock, AlertTriangle, X, FileText } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
@@ -28,6 +28,10 @@ export default function DashboardInstrumentador() {
   const [selectedCirurgiaId, setSelectedCirurgiaId] = useState<number | null>(null);
   const [motivoCancelamento, setMotivoCancelamento] = useState('');
 
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [selectedRelatorioId, setSelectedRelatorioId] = useState<number | null>(null);
+  const [fileName, setFileName] = useState('');
+
   const formatDate = (dateStr: string) => {
     try {
       return format(parseISO(dateStr), 'dd/MM/yyyy');
@@ -49,8 +53,44 @@ export default function DashboardInstrumentador() {
     }
   };
 
+  const handleOpenUpload = (id: number) => {
+    setSelectedRelatorioId(id);
+    setFileName('');
+    setUploadModalOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFileName(e.target.files[0].name);
+    }
+  };
+
+  const handleConfirmUpload = () => {
+    if (selectedRelatorioId && fileName) {
+      updateRelatorio(selectedRelatorioId, 'recebido');
+      setUploadModalOpen(false);
+    }
+  };
+
   return (
     <div className="p-4 space-y-6 max-w-lg mx-auto pb-24">
+      {/* Ações Rápidas & Status */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span className="text-sm font-bold text-slate-800">Status atual:</span>
+          <span className="text-sm text-slate-600">Ativo para receber convites</span>
+        </div>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => window.location.href = '#/instrumentador/disponibilidade'}
+            className="flex-1 bg-primary-50 text-primary-700 py-2 rounded-xl text-xs font-bold hover:bg-primary-100 transition-colors"
+          >
+            Atualizar Disponibilidade
+          </button>
+        </div>
+      </div>
+
       {/* Resumo */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-primary-600 rounded-2xl p-4 text-white shadow-lg shadow-primary-600/20">
@@ -82,10 +122,10 @@ export default function DashboardInstrumentador() {
                     <p className="text-sm text-amber-800 mt-1">{d.demanda?.procedimento}</p>
                     <p className="text-xs text-amber-700 mt-0.5">Cirurgia do dia {formatDate(d.demanda?.data || '')}</p>
                     <button 
-                      onClick={() => updateRelatorio(d.id, 'recebido')}
-                      className="mt-3 bg-white text-emerald-600 border border-emerald-200 hover:bg-emerald-50 w-full py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+                      onClick={() => handleOpenUpload(d.id)}
+                      className="mt-3 bg-white text-primary-600 border border-primary-200 hover:bg-primary-50 w-full py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
                     >
-                      <CheckCircle className="w-4 h-4"/> Enviar Documento (Simulação)
+                      Anexar Arquivo
                     </button>
                   </div>
                 </div>
@@ -232,6 +272,46 @@ export default function DashboardInstrumentador() {
                 className="px-4 py-2 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 disabled:opacity-50"
               >
                 Confirmar Solicitação
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Upload de Arquivo */}
+      {uploadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-slate-100">
+              <h2 className="text-lg font-bold text-slate-900">Enviar Documento</h2>
+              <button onClick={() => setUploadModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <p className="text-sm text-slate-600">Selecione o arquivo do relatório ou nota fiscal para enviar à gestão.</p>
+              <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-primary-500 transition-colors bg-slate-50 relative">
+                <input 
+                  type="file" 
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                {fileName ? (
+                  <p className="text-sm font-bold text-primary-600 truncate">{fileName}</p>
+                ) : (
+                  <p className="text-sm text-slate-500">Toque aqui para escolher um arquivo</p>
+                )}
+              </div>
+            </div>
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+              <button onClick={() => setUploadModalOpen(false)} className="px-4 py-2 text-sm font-medium text-slate-600">Cancelar</button>
+              <button 
+                onClick={handleConfirmUpload} 
+                disabled={!fileName}
+                className="px-4 py-2 bg-primary-600 text-white rounded text-sm font-bold hover:bg-primary-700 disabled:opacity-50"
+              >
+                Enviar (Simulação)
               </button>
             </div>
           </div>

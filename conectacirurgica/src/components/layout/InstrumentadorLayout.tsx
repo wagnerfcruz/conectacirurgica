@@ -2,28 +2,35 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { CalendarDays, History, LogOut, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import clsx from 'clsx';
+import { useStore } from '../../store/useStore';
 
 export default function InstrumentadorLayout() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { instrumentadores } = useStore();
+  const currentUser = instrumentadores.find(i => i.id === 1);
 
   const navItems = [
     { to: '/instrumentador', icon: CalendarDays, label: 'Minha Agenda' },
-    { to: '/instrumentador/disponibilidade', icon: User, label: 'Informar Disponibilidade' },
+    { to: '/instrumentador/disponibilidade', icon: CalendarDays, label: 'Disponibilidade' },
     { to: '/instrumentador/historico', icon: History, label: 'Histórico' },
+    { to: '/instrumentador/perfil', icon: User, label: 'Meu Perfil' },
   ];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col max-w-md mx-auto relative shadow-2xl overflow-hidden">
       {/* Header */}
       <header className="bg-primary-900 text-white px-4 py-4 flex items-center justify-between z-20 shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
-            <User className="w-6 h-6 text-white" />
+        <div 
+          onClick={() => navigate('/instrumentador/perfil')}
+          className="flex items-center gap-3 cursor-pointer"
+        >
+          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center font-bold">
+            {currentUser?.nome?.substring(0,2).toUpperCase() || <User className="w-6 h-6 text-white" />}
           </div>
           <div>
-            <h1 className="font-semibold leading-tight">João Silva</h1>
-            <p className="text-xs text-primary-200">Ortopedia, Coluna</p>
+            <h1 className="font-semibold leading-tight">{currentUser?.nome || 'Instrumentador'}</h1>
+            <p className="text-xs text-primary-200 truncate max-w-[200px]">{currentUser?.especialidades.join(', ') || 'Nenhuma especialidade'}</p>
           </div>
         </div>
         <button onClick={() => setMenuOpen(!menuOpen)} className="p-2">
