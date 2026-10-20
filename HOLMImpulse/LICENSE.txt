@@ -1,0 +1,64 @@
+HOLMImpulse (Non-Commercial Freeware)
+
+License Agreement (2009-04-06)
+
+Name of the author:		HOLM Acoustics (below: "author")
+Name of the product: 	HOLMImpulse (below: "product")
+
+Website:				http://www.holmacoustics.com
+
+
+This agreement encloses the program itself as well as any attached material like texts or images.
+By using this product you agree to this license agreement.
+
+1. License
+----------
+This product was created and published for free distribution only. It can be transfered to everyone without any limitations. 
+It also can be offered on other websites for download as long as the product remains in its original form. Any changes, adjustment or modification must first be authorized by the author.
+This Non-Commercial Freeware version of the product is free for non-commercial purposes only.
+To put it briefly: You may use the product for free as long as you don't save paid time.
+This includes e.g. using it at work, on your company notebook or even on your own notebook if you use it to make money in any way.
+There's no special regulation for educational institutions.
+
+If you'd like to use the product in a commercial way contact HOLM Acoustics (info@holmacoustics.com)
+
+
+2. Publication & Distribution
+-----------------------------
+The product may be distributed in its original form unless expressly otherwise agreed upon from case to case with the author.
+All rights to the product remain reserved by the author.
+Neither may the product be sold in any way nor distributed with a dialer software without the express permission from the author.
+
+Publication in the PRESS or on a DATA MEDIUM:
+- The author has to be informed in case of a release in the press (magazine, CD supplement, software collection, etc.).
+
+3. Liability & Warranty
+-----------------------
+The author clearly points out that it is not possible to create absolutely errorless or on all systems compatible software. Therefore you buy this product "as is".
+This product was developed with the utmost care; however, a described function might fail. The author takes no responsibility for this.
+The author takes no responsibility for correctness of the product, especially not for the case that the product does not meet the requirements and purposes of the user or does not work together with other programs.
+The author takes absolutely no responsibility for damages of any kind resulting from the use, disuse or other not mentioned damage possibilities.
+The author takes no responsibility for correctness of the translations made by third party translators.
+It is not possible to assert any demands or compensations subsequently. However the author takes care to develop the program further to your full contentedness.
+The product does NOT contain any kind of spyware or adware. The product will only contact the web server of the author if the user decides to check for an update. The following information will then be transmitted: anonymous query-id (for abuse protection), current product version (to give a corresponding update information), operating system version (for OS specific update information) and product language (for language specific update information). To guarantee your privacy no personal information like IP addresses will be recorded.
+
+
+4. Legal Claim
+--------------
+The author is both creator and owner of this software as well as of the used algorithms and procedures.
+The author keeps the legal claim and the possessory claim of this software.
+You agree to the fact, that the chosen license is not the sale of the software and that you won't have any claims for patents, replication, trade secrets, trademarks or other rights.
+
+
+5. Copyright 
+------------ 
+This product is under the legal protection of the copyright and commercial law of the country in which it is released / used.
+It is strictly forbidden to manipulate, translate, decompile or disassemble the software, documentation as well as any related documents and files or any copies of them on the whole or partially unless expressly otherwise agreed upon from case to case with the author.
+
+
+6. Application of Law
+---------------------
+This contract is subject to the legislation of Denmark. It is used as if the concerning legal transactions are taking place in Denmark.
+
+If one of the terms of this license agreement is ineffective no other point is affected by that.
+Instead of the ineffective term those effective terms are applied which are closest for the purposes of the intention of the author.

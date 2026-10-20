@@ -1,0 +1,24 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Microsoft.VisualC;
+
+namespace std;
+
+[StructLayout(LayoutKind.Sequential, Size = 1)]
+[NativeCppClass]
+[DebugInfoInPDB]
+[MiscellaneousBits(64)]
+internal struct allocator_003CHOLM_003A_003AMeasure_003A_003ACalibrator_0020_002A_003E
+{
+}
+[StructLayout(LayoutKind.Sequential, Size = 1)]
+[DebugInfoInPDB]
+[MiscellaneousBits(64)]
+[NativeCppClass]
+internal struct allocator_003CHOLM_003A_003AGraphics_003A_003ARange_003E
+{
+	[SpecialName]
+	public unsafe static void _003CMarshalCopy_003E(allocator_003CHOLM_003A_003AGraphics_003A_003ARange_003E* P_0, allocator_003CHOLM_003A_003AGraphics_003A_003ARange_003E* P_1)
+	{
+	}
+}

@@ -1,0 +1,20 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Microsoft.VisualC;
+
+namespace std;
+
+[StructLayout(LayoutKind.Sequential, Size = 24)]
+[DebugInfoInPDB]
+[MiscellaneousBits(64)]
+[NativeCppClass]
+internal struct vector_003CHOLM_003A_003AMeasure_003A_003ACalibrator_0020_002A_002Cstd_003A_003Aallocator_003CHOLM_003A_003AMeasure_003A_003ACalibrator_0020_002A_003E_0020_003E
+{
+}
+[StructLayout(LayoutKind.Sequential, Size = 24)]
+[DebugInfoInPDB]
+[MiscellaneousBits(64)]
+[NativeCppClass]
+internal struct vector_003CHOLM_003A_003AGraphics_003A_003ARange_002Cstd_003A_003Aallocator_003CHOLM_003A_003AGraphics_003A_003ARange_003E_0020_003E
+{
+}

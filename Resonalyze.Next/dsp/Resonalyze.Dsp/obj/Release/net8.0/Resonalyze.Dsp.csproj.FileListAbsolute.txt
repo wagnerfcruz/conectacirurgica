@@ -1,0 +1,12 @@
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/bin/Release/net8.0/Resonalyze.Dsp.deps.json
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/bin/Release/net8.0/Resonalyze.Dsp.dll
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/bin/Release/net8.0/Resonalyze.Dsp.pdb
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/Resonalyze.Dsp.csproj.AssemblyReference.cache
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/Resonalyze.Dsp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/Resonalyze.Dsp.AssemblyInfoInputs.cache
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/Resonalyze.Dsp.AssemblyInfo.cs
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/Resonalyze.Dsp.csproj.CoreCompileInputs.cache
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/Resonalyze.Dsp.dll
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/refint/Resonalyze.Dsp.dll
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/Resonalyze.Dsp.pdb
+/Users/wagnercruz/workspace/Resonalyze.Next/dsp/Resonalyze.Dsp/obj/Release/net8.0/ref/Resonalyze.Dsp.dll

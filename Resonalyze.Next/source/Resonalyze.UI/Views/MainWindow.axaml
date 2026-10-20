@@ -1,0 +1,90 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:oxy="http://oxyplot.org/avalonia"
+        xmlns:vm="using:Resonalyze.UI.ViewModels"
+        x:Class="Resonalyze.UI.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Resonalyze (Mac Edition)" Width="1400" Height="900"
+        Background="#1E1E1E">
+
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- TOP TOOLBAR (Icon/Button Row) -->
+        <Border Grid.Row="0" Background="#2D2D30" BorderBrush="#3E3E42" BorderThickness="0,0,0,1" Padding="10">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                
+                <!-- Main Action Buttons -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                    <Button Content="⬤ RECORD" Background="#8B0000" Foreground="White" FontWeight="Bold" Width="100" HorizontalContentAlignment="Center"/>
+                    <Button Content="History" Background="#3E3E42" Foreground="White"/>
+                    <Button Content="Overlays" Background="#3E3E42" Foreground="White"/>
+                </StackPanel>
+
+                <!-- ICONS FOR MODE SWITCHING -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center">
+                    <RadioButton Content="Frequência" Classes="ModeIcon" IsChecked="{Binding CurrentMode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:AppMode.FrequencyResponse}}"/>
+                    <RadioButton Content="Fase" Classes="ModeIcon" IsChecked="{Binding CurrentMode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:AppMode.Phase}}"/>
+                    <RadioButton Content="Group Delay" Classes="ModeIcon" IsChecked="{Binding CurrentMode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:AppMode.GroupDelay}}"/>
+                    <RadioButton Content="Impulso" Classes="ModeIcon" IsChecked="{Binding CurrentMode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:AppMode.Impulse}}"/>
+                    <RadioButton Content="Waterfall" Classes="ModeIcon" IsChecked="{Binding CurrentMode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:AppMode.Waterfall}}"/>
+                    <RadioButton Content="Time Align" Classes="ModeIcon" IsChecked="{Binding CurrentMode, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static vm:AppMode.TimeAlignment}}"/>
+                </StackPanel>
+
+                <!-- UI MODE TOGGLE (Classic vs Auto) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                    <ToggleSwitch Content="Modo IA Automotivo" IsChecked="{Binding IsAutomotiveMode}" Foreground="White" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN DYNAMIC CONTENT -->
+        <Grid Grid.Row="1" ColumnDefinitions="300, *, 350">
+            
+            <!-- LEFT PANEL: Changes based on selected Icon -->
+            <Border Grid.Column="0" Background="#252526" BorderBrush="#3E3E42" BorderThickness="0,0,1,0" Padding="10">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="CONFIGURAÇÕES DA TELA ATUAL:" Foreground="#007ACC" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding CurrentMode}" Foreground="White" FontSize="20"/>
+                    <TextBlock Text="Aqui entraremos com Smoothing, FDW, Janelas de Impulso correspondentes ao icone que você clicou no topo." Foreground="#888" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- CENTER PANEL: Graph Area -->
+            <Border Grid.Column="1" Background="#1E1E1E" Padding="20">
+                <oxy:PlotView Model="{Binding PlotModel}" Background="Transparent" />
+            </Border>
+
+            <!-- RIGHT PANEL: Assistant / DSP -->
+            <Border Grid.Column="2" Background="#252526" BorderBrush="#3E3E42" BorderThickness="1,0,0,0" Padding="10">
+                 <StackPanel>
+                     <TextBlock Text="ASSISTENTE / EQ WIZARD" Foreground="#007ACC" FontWeight="Bold"/>
+                     <TextBlock Text="Este painel será focado em gerar os filtros (Biquads) ou rodar as sugestões da Inteligência Artificial." Foreground="#888" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                 </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+
+    <Window.Styles>
+        <!-- Style for the Top Icons (RadioButtons acting like Tabs) -->
+        <Style Selector="RadioButton.ModeIcon">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#AAA"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="RadioButton.ModeIcon:checked">
+            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="RadioButton.ModeIcon:pointerover">
+            <Setter Property="Background" Value="#3E3E42"/>
+        </Style>
+    </Window.Styles>
+</Window>

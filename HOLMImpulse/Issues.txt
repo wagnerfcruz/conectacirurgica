@@ -1,0 +1,25 @@
++-----------------------------------------------------------------------+
+			HOLMImpulse BUGS
++-----------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------+
+			HOLMImpulse FEATURE REQUESTS (Prioritized)
++-----------------------------------------------------------------------+
+*	Improve samplerate converter for import of signal vs. recording
+*	Reintroduce multiple measurements for averaging
+*	Obtain static FadeIn/fadeOut values logsweep+chirp (Need further investigation)
+*	Offset times in samples/cm/msec (Now only in samples)
+*	Move time offset with mouse in impulse domain
+*	Absolute gain (calibration dependent)
+*	Help as HTML pages
+*	Variable frequency end when using chirp and logsweep (Now only samplerate/2)
+*	Classical timewindows: Blackman, Hanning,...
+*	Step response calculation from impulse response
+*	Protect Measurement causing popup when clear
+*	Cumulative spectral decay (CSD) 3D graph
+*	Variable number of slots
+*	Mixer Level-Adjust-Wizard
+*	Adjust latency options for the soundcard (PortAudio)
+*	Show curve values instead of coordinates
+*	Show the recorded signal as wave-form

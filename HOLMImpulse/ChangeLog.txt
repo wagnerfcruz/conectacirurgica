@@ -1,0 +1,625 @@
++-----------------------------------------------------------------------+
+			HOLMImpulse CHANGELOG
++-----------------------------------------------------------------------+
+
+Version 1.4.2.0	(2009-11-12)
+
+Bugfixes:
+*	Supporting unicode characters in directories and filenames
+
+-------------------------------------------------------------------------
+Version 1.4.1.8 (2009-11-02)
+
+Features/Changes:
+*	Measurement options: Text changed
+*	Measurement - Distortion Noise option
+*	Measurement options: Cursor as hourglass when updating
+*	Measurement options: Faster smoothing
+*	Measurement options: Faster amplification
+
+Bugfixes:
+*	Record meter window supporting 120 DPI setting
+*	Download window supporting 120 DPI setting
+
+-------------------------------------------------------------------------
+Version 1.4.1.6 (2009-10-19)
+
+Features/Changes:
+*	Measurement options: Layout changed: Raw response, time-window, freq-smoothing
+*	Measurement options: Invert button changed to Invert flag checkbox
+*	DAC-ADC calibration changed from +/- 3dB to +/- 6dB
+*	Manipulation: Copy A to C
+
+Bugfixes:
+*	Device & signal: Invert input has no effect
+*	1/N-Octave smothing for high frequencies (90% of Nyquist)
+
+-------------------------------------------------------------------------
+Version 1.4.1.4 (2009-10-15)
+
+Bugfixes:
+*	Factor of 2 when calculating 1/N octave filters
+*	Show legends on butmaps can be unchecked
+*	Measurement options: Invert amplitude causes normalization to be invalid
+
+-------------------------------------------------------------------------
+Version 1.4.1.2 (2009-10-12)
+
+Features/Changes:
+*	Complex frequency domain smoothing (FPPO) <-> Frequency dependant time-window
+
+-------------------------------------------------------------------------
+Version 1.4.1.0 (2009-10-08)
+
+Features/Changes:
+*	User Guide integration: Help > User Guide
+*	Total response improved to confirm with ANSI+ISO 1/3, 1/6 octave filters
+
+Bugfixes:
+*	Huge memory usage when drawing graphs
+*	Plotting harmonic distortion when not available causes unhandled exception
+
+-------------------------------------------------------------------------
+Version 1.4.0.8 (2009-10-06)
+
+Features/Changes:
+*	Improved logarithmic frequency axis
+*	Improved Time-zero Auto detect methods
+*	Measurement > Options > Info button
+*	Measurements data extra field: Application info
+*	Measurements data extra field: Date
+*	Windows Vista GUI compatible record-meter
+*	Exporting phase - Phase extend -> Phase Unwrap (Same functionality)
+
+Bugfixes:
+*	Crash when closing application
+	
+-------------------------------------------------------------------------
+Version 1.4.0.6 (2009-10-01)
+
+Features/Changes:
+*	Signal length up to 2^22 = 4.194.304 samples available
+*	Information when trying to import signal/recording with different samplerates
+*	Record Meter Window improved (Alt+F1)
+*	Improved Time-zero Auto detect (Again)
+*	Logging is now Std C++ instead of Microsoft CLR 
+
+Bugfixes:
+*	Misc spontaneous crashes and unhandled exceptions
+*	In/out channels is not loaded correctly
+
+-------------------------------------------------------------------------
+Version 1.4.0.4 (2009-09-23)
+
+Features/Changes:
+*	Record Meter (Alt+F1)
+*	Supporting 4 channels soundcards
+*	Seperating MME, DirectSound, ASIO
+
+Bugfixes:
+*	High ressult when using logsweep or chirp
+*	Time-zero Auto detect
+*	Memory Allocation error for low- & high-pass
+
+-------------------------------------------------------------------------
+Version 1.4.0.2 (2009-09-09)
+
+Features/Changes:
+*	Time-Zero-Method: Causal Impulse (Analog / IIR Filters)
+
+Bugfixes:
+*	Distortion graphs at low frequencies
+*	High/Low-pass measurement was not memory-safe for frequencies above Nyqiust
+
+-------------------------------------------------------------------------
+Version 1.4.0.0 (2009-09-03)
+
+Features/Changes:
+*	Use specific user directory instead of 'All Users' directory	
+*	Import of DUT response Import > 'Signal & Recording'
+
+Bugfixes:
+*	Memory leak
+*	Zip/Unzip using HeapAlloc (Memory problems on Vista causing crash)
+
+Notes:
+*	Direct import of old file format <file>.hlm
+
+-------------------------------------------------------------------------
+Version 1.3.0.4 (2009-08-28)
+
+Features/Changes:
+*	Lowpass/Highpass variable length 
+*	Old autosaved file (MeasAutosaved.hlm) is moved to AutosavedObsolete
+*	QBox fit - Automatic plot
+*	Options - Sample offset increment
+*	Logarithmic frequency axis - Grid improved
+*	Export - Overwrite confirm dialog (Removed from browse)
+
+Bugfixes:
+*	Stitch Measurement C = A -> B
+*	Impulse domain: Auto Zoom
+*	Options: Clear measurement resets values
+*	Clear measurements and close does not overwrite autosaved measurements
+*	Memory leaks
+
+-------------------------------------------------------------------------
+Version 1.3.0.2 (2009-08-26)
+
+Bugfixes:
+*	Application version 1.2.9.9 instead of 1.3.0.0
+*	NDEBUG not defined for compiler causing slower performance
+
+-------------------------------------------------------------------------
+Version 1.3.0.0 (2009-08-25)
+
+Features/Changes:
+*	Fileformat - New Open format (Zipped, flac/wav files)
+*	Fileformat - Old packages <file>.hlm can still be opened)
+*	Fileformat - Full impulse is saved
+*	Analysis -> Measurement Data length only affect FFT size
+*	THD improved - Now calculating from 20th HD instead of 10th HD
+*	THD calculated on-the-fly when needed from the plotting
+*	Time zero autodetect improved at Nyquist frequency
+*	Waiting information improved (Hourglass when the application is working)
+*	Default setting: Normalize to 0dB not default
+*	Memory allocation now using HeapAloc/HeapFree 
+
+Bugfixes:
+*	Extrapolating Import of frequency response to 0Hz
+
+Notes:
+*	Using new Windows SDK v7.0 library
+
+-------------------------------------------------------------------------
+Version 1.2.1.2 (2009-07-17)
+
+Bugfixes:
+*	Output allways to both left & right 	
+	(Bug was introduced in version 1.2.0.0)
+*	Manipulation: B = 1/A when using windowing	
+	
+-------------------------------------------------------------------------
+Version 1.2.1.0 (2009-07-13)
+
+Features/Changes:
+*	Export all mesurements as textfile (Impulse responses only)
+*	Locate impulse peak for LF with HF noise improved
+*	Normalization dialog includes maximum dB for graph
+*	GUI - Calibration box moved to device tab
+*	GUI - Save wave files moved to analysis tab
+
+Bugfixes:
+*	Make Dac-Adc calibration does not work
+
+-------------------------------------------------------------------------
+Version 1.2.0.8 (2009-07-11)
+
+Bugfixes:
+*	System.AccessViolationException: When zooming to IR after sample shifting
+    (Was caused by ArrayCircShift function taking argurement by point reference)
+
+-------------------------------------------------------------------------
+Version 1.2.0.6 (2009-07-11)
+
+Features/Changes:
+*	Static libsnd library (used for import and export of wavefiles)
+
+Bugfixes:
+*	Moving time offset while lowpass or highpass currupted data
+*	No Wavefile type when exporting impulse as wavefile
+*	Memory error when reading Harmonic Distortion from saved measurement
+*	QBox manipulation
+
+Notes: 
+*	SSE2-version is not maintained, since the FFT-algorithms in fact was 
+	slower with SSE2 using the VC++ compiler
+
+-------------------------------------------------------------------------
+Version 1.2.0.4 (2009-07-09)
+
+Features/Changes:
+*	Frequency domain - Export "Extend phase when changing sign" option
+*	Impulse domain - Import as text file
+*	Impulse domain - Import as wave/flac/mp3/au-file
+*	Measuring: Extend to Nyquist frequency for nicer impulse view
+*	Autodetect SSE2 support from CPU identifier when autoupdating
+
+Bugfixes:
+*	Frequency domain - Export Logarithmic was nearly nonsense
+*	Frequency domain - Export was allways PSpice format
+*	Frequency domain - Export as PSpice compatiable text-file
+*	Out of memory when zooming in on the graphs
+
+Notes: 
+*	SSE2-version is new reenabled
+
+-------------------------------------------------------------------------
+Version 1.2.0.2 (2009-07-03)
+
+Features/Changes:
+*	Reinitialize Audio library (Detects soundcards plugged after start)
+*	Show PortAudio device information button
+*	Frequency domain - Export as PSpice compatiable text-file
+*	Impulse domain - Impulse interpolation is now optional
+*	Improved inverse calculation
+
+Bugfixes:
+*	Keep stream active while cannot restart stream
+*	Export Impulse domain text file has a header no matter what the "text" option is set at.
+*	Imaginary part of Nyquist frequency in 2^n FFT 
+
+Notes: 
+*	SSE2-version is now enabled per default, so the specific SSE2 version is now dead.
+
+-------------------------------------------------------------------------
+Version 1.2.0.0 (2009-06-29)
+
+Features/Changes:
+*	New layout (Extra tab: 'Data analysis')
+*	Fade in/out in milliseconds
+*	Saving signals: Extend with zeroes when saving inverse signal
+*	Save the correlation to wave-file when measuring (Optional)
+*	Adjustable output level: -40 -> 0 dBFS
+*	Time-alignment - (Lock Time zero feature)
+*	Impulse domain: Autozoom and zoomout improved
+*	Response data analysis improved (Faster)
+*	Export Impulse: From/To samples are not reset when exporting again
+*	Stored in options: Save Wave files option
+*	Stored in options: Save Wave files filenames
+*	Stored in options: Chirp start freq and potens
+*	Stored in options: SQ-noise 
+
+Bugfixes:
+*	Sometimes options was not stored becuse form was destroyed before saving
+*	Impulse domain: Selected unit (distance, samples, time) was not saved
+*	Inverse signal: Saved waveform was time-reversed
+*	Time window: Disable auto apply window really does not apply any window now
+*	Time window: Is not locked when reoppening measurement
+
+NB: 
+*	Not all old settings are migrated to this version
+
+-------------------------------------------------------------------------
+Version 1.1.6.6 (2009-06-22)
+
+Features/Changes:
+*	LogSweep - Variable Infade & Outfade
+
+Bugfixes:
+*	LogSweep - Infade & Outfade
+*	Save signal as wave file (Syncing file-buffer)
+
+-------------------------------------------------------------------------
+Version 1.1.6.2 (2009-06-22)
+
+Features/Changes:
+*	Save impulse response as 16/24 bit wave file. (for ARTA import)
+*	Save measurement signal as wave file.
+*	Save inverse signal as normalized wave file.
+*	Save output and recording as wave file (Optional)
+
+Bugfixes:
+*	Signal is allways LogSweep
+
+-------------------------------------------------------------------------
+Version 1.1.6.0 (2009-06-17)
+
+Features/Changes:
+*	ASIO support
+*	DirectSound support
+*	Export Impulse response as wave file
+*	TimeWindow start adjusted for logsweep
+*	Impulse domain: No autozoom in time after measurement
+
+Bugfixes:
+*	Settings ToolTips (Popups)
+-------------------------------------------------------------------------
+Version 1.1.6.0 (2009-06-17)
+
+Features/Changes:
+*	ASIO support
+*	DirectSound support
+*	Export Impulse response as wave file
+*	TimeWindow start adjusted for logsweep
+*	Impulse domain: No autozoom in time after measurement
+
+Bugfixes:
+*	Settings ToolTips (Popups)
+
+-------------------------------------------------------------------------
+Version 1.1.5.6 (2009-06-16)
+
+Features/Changes:
+*	0dB Normalization optional (Enabled by default)
+*	Time window auto-apply optional (Enabled by default)
+*	Stich measurement with phase and gain optional
+*	Match measurement with phase optional
+*	Detection of time zero improved and configurable
+*	LogSweep highpass of the resulting impulse response (Enabled by default)
+
+Bugfixes:
+*	Impulse domain: Autozoom for not normalized measurements
+*	Normalization (Shift dB did not include pregain)
+
+Notes:
+*	Code-cleanup for normalization
+*	Remake of detection of time zero
+
+-------------------------------------------------------------------------
+Version 1.1.5.4 (2009-06-13)
+
+Bugfixes:
+*	DPI resolution other than 96 in Windows setting
+*	Improved scaling when using large fonts in Windows setting
+
+-------------------------------------------------------------------------
+Version 1.1.5.2 (2009-06-12)
+
+Features/Changes:
+*	New Icons (Improved)
+*	Save Frequency- & Impulse-Response in one image
+*	Frequency domain: Gating frequency indicator optional
+*	Frequency domain: dB minimum buttons
+*	Impulse domain: Harmonic distortion pre-tops indicators for the logsweep
+*	Impulse domain: Autoshift to m if above 500 cm in scale
+*	Impulse domain: Variable dB minimum when using dB scale
+
+Bugfixes:
+*	Impulse Graph: Drawing timewindow slow
+*	Zoom out at different samplerate
+
+-------------------------------------------------------------------------
+Version 1.1.5.0 (2009-06-09)
+
+Features/Changes:
+*	File type *.hlm registered for HOLMImpulse (Double-click on file.hlm)
+*	Impulse-Graph improved graphics (Peak-To-Peak)
+*	Export impulse response: Sample number is optional (CheckBox)
+*	Max signal Length = 20 (Was 21, but crashed need to troubleshoot)
+*	New Icons
+
+Bugfixes:
+*	Post-Time window to small (Increased by x10)
+*	Impulse-Graph x-axis-label postition
+*	Harmonic distortion: Only plotting at frequencies where data is available
+
+-------------------------------------------------------------------------
+Version 1.1.4.8 (2009-06-03)
+
+Features/Changes:
+*	Export impulse response as text file
+*	Improved down-sizing when initializing measurements
+*	Impulse zoom out button
+*	Faster plotting in impulse-domain
+
+-------------------------------------------------------------------------
+Version 1.1.4.6 (2009-06-02)
+
+Features/Changes:
+*	New portaudio static library
+*	64 bit support
+*	SSE2 disabled per default (Now Specific SSE2 version)
+
+-------------------------------------------------------------------------
+Version 1.1.4.2 (2009-05-29)
+
+Features/Changes:
+*	Checking for update as first thing at startup
+
+Bugfixes:
+*	Autozoom for measurements with a non-native samplerate
+*	QBox update disables time window
+*	QBox MinimumPhase was not 100% causal
+
+-------------------------------------------------------------------------
+Version 1.1.4.0 (2009-05-28)
+
+Features/Changes:
+*	QBox (Sealed box) Autofit
+*	Compiled with SSE2 support (Faster math, FFT, etc...)
+
+Bugfixes:
+*	Reverberation impulses caused by cyclic FFT
+
+-------------------------------------------------------------------------
+Version 1.1.3.8 (2009-05-25)
+
+Features/Changes:
+*	QBox (Sealed box frequency/impulse response simulate) Menu->Analyze->QBox
+*	Improved Windowsize for organize measurements
+*	Lowpass/highpass for measurements are saved/opened
+
+Bugfixes:
+*	Impulse response normalized amplitude for different samplerates
+-------------------------------------------------------------------------
+
+Version 1.1.3.4 (2009-05-18)
+
+Features/Changes:
+*	Compatible with HOLMFIR saved measurements (New format version)
+*	When opening measurements - the plottet slots are reset to 0,1,2
+
+Bugfixes:
+*	Measurement options - Tabbing order
+
+-------------------------------------------------------------------------
+Version 1.1.3.2 (2009-05-17)
+
+Features/Changes:
+*	Harmonic distortion is now plottet when the windowed amplitude is high	
+*	Legends when saving bitmap
+
+Bugfixes:
+*	Microphone calibration disabled when making DAC-ADC calibration
+
+-------------------------------------------------------------------------
+Version 1.1.3.0 (2009-05-14)
+
+Features/Changes:
+*	Keep Audio-Stream alive disabled per default
+*	Harmonic distortion working for all log-sweep length
+*	Harmonic distortion only showed to 1/3 Nyquist frequency
+*	Harmonic distortion saved/loaded from mesurement file
+*	Reverberation analysis improved
+*	dB mirror option for the Impulse graph has deaful -70 dB
+*	+dB shift shown in measurement info
+*	Info popups are HOLM custom popups, with topmost (Allways on top)
+
+Bugfixes:
+*	Plot amplitude checkbox updated when loading configuration at startup
+
+-------------------------------------------------------------------------
+Version 1.1.2.8 (2009-05-11)
+
+Bugfixes:
+*	HOLMFIR extended measurements editable
+*	Harmonic distortion normalized to amplitude
+*	Harmonic distortion windows updated to match correct amplitude
+
+
+-------------------------------------------------------------------------
+
+Version 1.1.2.6 (2009-05-08)
+
+Features/Changes:
+*	Higher latency for Audio - IO
+*	Reverberation analysis
+*	dB mirror option for the Impulse graph
+*	-70 dB as default lower limit
+*	Increased default extra recording time
+
+Bugfixes:
+*	At new measurement the measurement setting is reset
+
+Notes:
+*	Misc code-optimization inheritted from HOLMFIR project
+
+-------------------------------------------------------------------------
+Version 1.1.2.4 (2009-04-27)
+
+Features/Changes:
+*	Lowpass / Highpass on already existing measurements
+
+Bugfixes:
+*	Volume measurement warnings updated
+-------------------------------------------------------------------------
+
+Version 1.1.2.2 (2009-04-13)
+
+Features:
+*	File > Organize Measurements.
+
+Bugfixes:
+*	Improved Export/import to microphonecalibrations
+
+Notes:
+*	New measurement-list structure
+
+-------------------------------------------------------------------------
+Version 1.1.2.0 (2009-04-08)
+
+Features:
+*	License updated
+*	When changing samplerate the frequency end scale is automaticly changed
+*	Analyze: Microphone calibration tool (for HOLM internal use)
+*	Export as calibration improved
+*	Analyze: Matching two measurements at different samplerate/length
+*	Analyze: Stitching two measurements at different samplerate/length
+*	Make DAC-ADC calibration improved
+
+-------------------------------------------------------------------------
+Version 1.1.1.2 (2009-04-02)
+
+Features:
+*	Analyze: Matching A -> B at a specific frequency
+*	Analyze: Stitching C = A -> B: static Form and correct windowing
+*	Graphics: Scrollbar on the Measurement dropdowns
+*	Signal shown before measuring
+*	Set timewindow after measurement (Even if not present on emasurement)
+*	Options: Remember filter settings
+*	Measuring: Normalize to frequency window if that exists
+
+Bugfixes:
+*	Set samplerate implies freqstart = 10 Hz
+
+Notes:
+*	Old configuration is not compatible with this new version 
+	and will be reset
+
+-------------------------------------------------------------------------
+Version 1.1.1.0 (2009-03-31)
+
+Features:
+*	Numbering of empty measurements to avoid same name
+*	Analyze: B = 1/A 
+*	Analyze: C = A -> B (Auto adjust measurement A with gain+phase)
+
+Bugfixes
+*	Remove empty application version directory on exit
+*	Spelling: Miscealanous -> Miscellaneous
+*	ABC-operations with samplerate higher than 44100
+*	Import measurements with lower samplerate than active
+
+-------------------------------------------------------------------------
+Version 1.1.0.8 (2009-03-24)
+
+Features:
+*	Options: Frequency & Amplitude limits - Improved GUI-Interaction
+*	Harmonic distortion: Availability information
+*	DAC-ADC calibration option
+*	Restart Stream option
+*	New layout for device settings
+*	LogSweep: Variable frequency start
+
+Bugfixes:
+*	Stiching: Removed Signal from result
+*	A, B, C labels visible for the measurements
+*	Linear Frequency axis 
+*	Linear Amplitude axis
+*	When changing plot-compenents graphs is zoomed out
+*	Autoaupdate timeout for slow network response
+
+Notes:
+*	Using new library structure - Introducing the AudioHelper Class
+
+-------------------------------------------------------------------------
+Version 1.1.0.6 (2009-03-19)
+
+Features:
+*	Drag'N'Drop measurement-files
+*	AutoUpdater
+*	Check for update option at startup
+*	Measurements Clear: Moved to Options
+
+Bugfixes:
+*	Slot number is not reset when plot components are changed
+
+-------------------------------------------------------------------------
+Version 1.1.0.4 (2009-03-18)
+
+Features:
+*	Total redesign!!!!!!!!!!
+*	Plot signal with thiner lines
+*	THD graphs
+*	Autodetect echoes
+*	Autozoom impulsegraph
+
+-------------------------------------------------------------------------
+Version 1.0.1.2 (2008-06-26)
+
+Features:
+*	Microphone calibration
+*	Improved GUI
+*	Measurement product, difference
+*	Measurement Copy
+*	Measurement Copy window
+*	Remember slotvalues in options file
+*	Measurement popup
+*	Mostly reworked
+*	Export as text
+*	Division
+*	Sum
+
+Bugfixes:
+*	Rearange
