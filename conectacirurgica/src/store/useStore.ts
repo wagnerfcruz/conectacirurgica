@@ -6,18 +6,38 @@ export type StatusConvite = 'aguardando' | 'aceito' | 'recusado' | 'expirado' | 
 
 export interface Instrumentador {
   id: number;
-  nome: string;
-  especialidades: string[];
-  regiao: string;
+  nome: string; // Nome completo
+  celular?: string; // Celular/telefone
+  regiao: string; // Cidade/região
+  funcao?: string; // Função ou categoria profissional
+  nivel?: string; // Nível profissional
+  especialidades: string[]; // Especialidades e tipos de cirurgia
+  competenciasDeclaradas?: string[]; // Competências declaradas
+  competenciasValidadas?: string[]; // Competências validadas
+  statusCadastro?: string; // Status do cadastro
+  dadosComplementares?: string; // Dados complementares
+  transporte?: string; // Transporte
   validado: boolean;
   atuacoes: number;
   nota: string;
-  disponibilidade: Record<string, string[]>; // yyyy-MM-dd -> ['manha', 'tarde']
-  celular?: string;
+  disponibilidade: Record<string, string[]>;
   cpf?: string;
-  transporte?: string; // 'carro', 'moto', 'outro', 'nao_informado'
-  competenciasDeclaradas?: string[];
-  competenciasValidadas?: string[];
+}
+
+export interface ProdutoMaterial {
+  id: string;
+  descricao: string;
+  quantidade: string;
+  observacoes?: string;
+  codigoReferencia?: string;
+}
+
+export interface EquipamentoServico {
+  id: string;
+  tipo: 'equipamento' | 'servico';
+  descricao: string;
+  quantidade?: string;
+  observacoes?: string;
 }
 
 export interface Demanda {
@@ -25,12 +45,29 @@ export interface Demanda {
   data: string; // yyyy-MM-dd
   hora: string; // HH:mm
   hospital: string;
+  unidadeLocal?: string; // Unidade/local complementar
   procedimento: string;
   medico: string;
+  tipoEvento?: string; // agendamento, reagendamento, etc
   status: StatusDemanda;
   instrumentadorId?: number | null;
-  valorFreelancer?: string;
+  valorFreelancer?: string; // Valor do freelancer em reais (numérico formata em BRL na UI ou string formatada)
   motivoCancelamento?: string;
+  emergencia?: boolean; // Indicador de emergência
+  observacoes?: string; // Observações
+  confirmacao?: string; // Confirmação
+
+  // Novos campos baseados no Card Oficial
+  mc?: string;
+  paciente?: string;
+  empresa?: string;
+  convenio?: string;
+  produtosLista?: ProdutoMaterial[];
+  equipamentosLista?: EquipamentoServico[];
+  produtos?: string; // Mantendo para retrocompatibilidade provisória
+  equipamentos?: string; // Mantendo para retrocompatibilidade provisória
+  representante?: string;
+  retornoOp?: string;
 }
 
 export interface Convite {
@@ -50,13 +87,20 @@ export interface Relatorio {
   dataSolicitacao: string;
 }
 
+export interface EmpresaConfig {
+  logoUrl?: string;
+  nome: string;
+}
+
 interface AppState {
   instrumentadores: Instrumentador[];
   demandas: Demanda[];
   convites: Convite[];
   relatorios: Relatorio[];
+  empresaConfig: EmpresaConfig;
   
   // Actions
+  updateEmpresaLogo: (url: string) => void;
   updateDisponibilidade: (id: number, date: string, periodos: string[]) => void;
   updateDisponibilidadeRange: (id: number, dates: string[], periodos: string[]) => void;
   enviarConvite: (demandaId: number, instrumentadorId: number) => void;
@@ -74,16 +118,30 @@ interface AppState {
 }
 
 const initialInstrumentadores: Instrumentador[] = [
-  { id: 1, nome: 'João Silva', especialidades: ['Ortopedia', 'Coluna'], regiao: 'SP - Centro, Sul', validado: true, atuacoes: 45, nota: 'A', disponibilidade: {}, celular: '(11) 99999-9999', transporte: 'carro', competenciasValidadas: ['Instrumentação Cirúrgica Básica'] },
-  { id: 2, nome: 'Ana Costa', especialidades: ['Crânio', 'Neurologia'], regiao: 'SP - Todas', validado: true, atuacoes: 128, nota: 'A+', disponibilidade: {}, celular: '(11) 98888-8888', transporte: 'moto' },
-  { id: 3, nome: 'Carlos Mendes', especialidades: ['Ortopedia'], regiao: 'SP - Leste', validado: false, atuacoes: 0, nota: '-', disponibilidade: {}, transporte: 'nao_informado' },
-  { id: 4, nome: 'Mariana Souza', especialidades: ['Coluna'], regiao: 'SP - Sul', validado: true, atuacoes: 12, nota: 'B', disponibilidade: {}, transporte: 'outro' },
+  { id: 1, nome: 'João Silva', funcao: 'Instrumentador', nivel: 'Nível 1', especialidades: ['Ortopedia', 'Coluna'], regiao: 'SP - Centro, Sul', validado: true, atuacoes: 45, nota: 'A', disponibilidade: {}, celular: '(11) 99999-9999', transporte: 'carro', competenciasValidadas: ['Instrumentação Cirúrgica Básica'], statusCadastro: 'Ativo' },
+  { id: 2, nome: 'Ana Costa', funcao: 'Instrumentador', nivel: 'Nível 2', especialidades: ['Crânio', 'Neurologia'], regiao: 'SP - Todas', validado: true, atuacoes: 128, nota: 'A+', disponibilidade: {}, celular: '(11) 98888-8888', transporte: 'moto', statusCadastro: 'Ativo' },
+  { id: 3, nome: 'Carlos Mendes', funcao: 'Instrumentador', nivel: 'Nível 1', especialidades: ['Ortopedia'], regiao: 'SP - Leste', validado: false, atuacoes: 0, nota: '-', disponibilidade: {}, transporte: 'nao_informado', statusCadastro: 'Pendente' },
+  { id: 4, nome: 'Mariana Souza', funcao: 'Instrumentador', nivel: 'Nível 3', especialidades: ['Coluna'], regiao: 'SP - Sul', validado: true, atuacoes: 12, nota: 'B', disponibilidade: {}, transporte: 'outro', statusCadastro: 'Ativo' },
 ];
 
 const initialDemandas: Demanda[] = [
-  { id: 1, data: '2026-10-22', hora: '08:00', hospital: 'Hosp. Santa Catarina', procedimento: 'Artroplastia Total de Joelho', medico: 'Dr. Roberto Almeida', status: 'alocando', valorFreelancer: 'R$ 250,00' },
-  { id: 2, data: '2026-10-24', hora: '14:30', hospital: 'Hosp. Sírio-Libanês', procedimento: 'Hérnia de Disco', medico: 'Dra. Fernanda Lima', status: 'pendente', valorFreelancer: 'R$ 300,00' },
-  { id: 3, data: '2026-10-18', hora: '10:00', hospital: 'Hosp. das Clínicas', procedimento: 'Ligamento Cruzado', medico: 'Dr. Carlos Souza', status: 'realizado', instrumentadorId: 1, valorFreelancer: 'R$ 200,00' },
+  { 
+    id: 1, data: '2026-10-22', hora: '08:00', hospital: 'Hosp. Santa Catarina', procedimento: 'Artroplastia Total de Joelho', medico: 'Dr. Roberto Almeida', status: 'alocando', 
+    valorFreelancer: 'R$ 250,00', mc: '896', paciente: 'João da Silva', empresa: 'MEDITEC', convenio: 'Bradesco', 
+    representante: 'Jonathan', retornoOp: 'Não retornado', tipoEvento: 'AGENDAMENTO', confirmacao: 'SEM DADOS', emergencia: false,
+    produtosLista: [
+      { id: '1', descricao: 'KIT P/ BLOQUEIO * (Enviar todos os tamanhos)', quantidade: '1', codigoReferencia: 'EDGE PAIN' }
+    ],
+    equipamentosLista: []
+  },
+  { 
+    id: 2, data: '2026-10-24', hora: '14:30', hospital: 'Hosp. Sírio-Libanês', procedimento: 'Hérnia de Disco', medico: 'Dra. Fernanda Lima', status: 'pendente', 
+    valorFreelancer: 'R$ 300,00', produtosLista: [], equipamentosLista: []
+  },
+  { 
+    id: 3, data: '2026-10-18', hora: '10:00', hospital: 'Hosp. das Clínicas', procedimento: 'Ligamento Cruzado', medico: 'Dr. Carlos Souza', status: 'realizado', 
+    instrumentadorId: 1, valorFreelancer: 'R$ 200,00', produtosLista: [], equipamentosLista: []
+  },
 ];
 
 const initialConvites: Convite[] = [
@@ -101,6 +159,11 @@ export const useStore = create<AppState>()(
       demandas: initialDemandas,
       convites: initialConvites,
       relatorios: initialRelatorios,
+      empresaConfig: { nome: 'Meditec' },
+
+      updateEmpresaLogo: (url) => set((state) => ({
+        empresaConfig: { ...state.empresaConfig, logoUrl: url }
+      })),
 
       updateDisponibilidade: (id, date, periodos) => set((state) => ({
         instrumentadores: state.instrumentadores.map(inst => 

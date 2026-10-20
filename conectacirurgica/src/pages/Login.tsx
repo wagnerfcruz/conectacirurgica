@@ -1,20 +1,26 @@
 import { useNavigate } from 'react-router-dom';
 import { Stethoscope, Building2 } from 'lucide-react';
+import { useStore } from '../store/useStore';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { empresaConfig } = useStore();
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-primary-900 rounded-xl flex items-center justify-center shadow-lg">
-            <Stethoscope className="w-8 h-8 text-white" />
-          </div>
+          {empresaConfig.logoUrl ? (
+            <img src={empresaConfig.logoUrl} alt="Logo da Empresa" className="h-16 object-contain" />
+          ) : (
+            <div className="w-16 h-16 bg-primary-900 rounded-xl flex items-center justify-center shadow-lg">
+              <Stethoscope className="w-8 h-8 text-white" />
+            </div>
+          )}
         </div>
-        <h2 className="text-3xl font-extrabold text-slate-900">Conecta Cirúrgica</h2>
+        <h2 className="text-3xl font-extrabold text-slate-900">{empresaConfig.nome || 'Conecta Cirúrgica'}</h2>
         <p className="mt-2 text-sm text-slate-600">
-          Acesse a plataforma de demonstração
+          Acesse a plataforma
         </p>
       </div>
 
@@ -22,6 +28,12 @@ export default function Login() {
         <div className="bg-white py-8 px-4 shadow-sm sm:rounded-xl sm:px-10 border border-slate-100">
           <div className="space-y-6">
             <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Empresa Contratante (Freelancer)</label>
+              <select className="w-full border-slate-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm p-3 border bg-white mb-4">
+                <option value="meditec">Meditec</option>
+                <option value="outra">Outra Empresa</option>
+              </select>
+
               <button
                 onClick={() => navigate('/instrumentador')}
                 className="w-full flex items-center justify-center gap-3 px-4 py-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
