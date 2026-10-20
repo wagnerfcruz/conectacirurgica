@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { format, addDays, startOfWeek, subWeeks, addWeeks, isSameDay } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Check, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { format, parseISO, isBefore, eachDayOfInterval, addDays } from 'date-fns';
+import { Check, X, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useStore } from '../../store/useStore';
 
@@ -9,64 +8,32 @@ type Periodo = 'manha' | 'tarde' | 'noite';
 
 export default function Disponibilidade() {
   const currentUserId = 1;
-  const { instrumentadores, updateDisponibilidade } = useStore();
+  const { instrumentadores, updateDisponibilidadeRange } = useStore();
   const currentUser = instrumentadores.find(i => i.id === currentUserId);
 
-  const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 }));
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [dataInicial, setDataInicial] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [dataFinal, setDataFinal] = useState(format(addDays(new Date(), 7), 'yyyy-MM-dd'));
+  
+  const [diasSemana, setDiasSemana] = useState<number[]>([1, 2, 3, 4, 5]); // Seg a Sex
   
   const [disponibilidadeLocal, setDisponibilidadeLocal] = useState<{diaInteiro: boolean, periodos: Record<Periodo, boolean>, indisponivel: boolean}>({
-    diaInteiro: false,
-    periodos: { manha: false, tarde: false, noite: false },
-    indisponivel: true
+    diaInteiro: true,
+    periodos: { manha: true, tarde: true, noite: true },
+    indisponivel: false
   });
   
-  const [hasChanges, setHasChanges] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  // Sync component state with global store when selected date changes
-  useEffect(() => {
-    if (!currentUser) return;
-    const dateStr = format(selectedDate, 'yyyy-MM-dd');
-    const disp = currentUser.disponibilidade[dateStr];
-    
-    if (disp) {
-      if (disp.includes('indisponivel')) {
-        setDisponibilidadeLocal({
-          diaInteiro: false,
-          periodos: { manha: false, tarde: false, noite: false },
-          indisponivel: true
-        });
-      } else if (disp.includes('integral')) {
-        setDisponibilidadeLocal({
-          diaInteiro: true,
-          periodos: { manha: true, tarde: true, noite: true },
-          indisponivel: false
-        });
-      } else {
-        setDisponibilidadeLocal({
-          diaInteiro: false,
-          periodos: {
-            manha: disp.includes('manha'),
-            tarde: disp.includes('tarde'),
-            noite: disp.includes('noite')
-          },
-          indisponivel: false
-        });
-      }
-    } else {
-      // Default: Sem informação preenchida
-      setDisponibilidadeLocal({
-        diaInteiro: false,
-        periodos: { manha: false, tarde: false, noite: false },
-        indisponivel: false
-      });
-    }
-    setHasChanges(false);
-    setSaveSuccess(false);
-  }, [selectedDate, currentUser]);
-
-  const weekDays = [...Array(7)].map((_, i) => addDays(currentWeekStart, i));
+  const diasOptions = [
+    { id: 0, label: 'Dom' },
+    { id: 1, label: 'Seg' },
+    { id: 2, label: 'Ter' },
+    { id: 3, label: 'Qua' },
+    { id: 4, label: 'Qui' },
+    { id: 5, label: 'Sex' },
+    { id: 6, label: 'Sáb' },
+  ];
 
   const handlePeriodoToggle = (periodo: Periodo) => {
     setDisponibilidadeLocal(prev => {
@@ -79,7 +46,6 @@ export default function Disponibilidade() {
         diaInteiro: isDiaInteiro
       };
     });
-    setHasChanges(true);
   };
 
   const handleDiaInteiroToggle = () => {
@@ -91,7 +57,6 @@ export default function Disponibilidade() {
         periodos: { manha: novoValor, tarde: novoValor, noite: novoValor }
       };
     });
-    setHasChanges(true);
   };
 
   const handleIndisponivelToggle = () => {
@@ -100,11 +65,39 @@ export default function Disponibilidade() {
       diaInteiro: false,
       periodos: { manha: false, tarde: false, noite: false }
     });
-    setHasChanges(true);
+  };
+
+  const toggleDiaSemana = (diaId: number) => {
+    setDiasSemana(prev => 
+      prev.includes(diaId) ? prev.filter(d => d !== diaId) : [...prev, diaId]
+    );
   };
 
   const handleSave = () => {
-    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    setErrorMsg('');
+    const dInit = parseISO(dataInicial);
+    const dEnd = parseISO(dataFinal);
+    
+    if (isBefore(dEnd, dInit)) {
+      setErrorMsg('A data final não pode ser antes da data inicial.');
+      return;
+    }
+    
+    if (diasSemana.length === 0) {
+      setErrorMsg('Selecione pelo menos um dia da semana.');
+      return;
+    }
+
+    if (!disponibilidadeLocal.indisponivel && !disponibilidadeLocal.diaInteiro && !disponibilidadeLocal.periodos.manha && !disponibilidadeLocal.periodos.tarde && !disponibilidadeLocal.periodos.noite) {
+      setErrorMsg('Selecione pelo menos um período ou marque como indisponível.');
+      return;
+    }
+
+    const allDays = eachDayOfInterval({ start: dInit, end: dEnd });
+    const datesToUpdate = allDays
+      .filter(d => diasSemana.includes(d.getDay()))
+      .map(d => format(d, 'yyyy-MM-dd'));
+
     let periodosFormatados: string[] = [];
     
     if (disponibilidadeLocal.indisponivel) {
@@ -117,67 +110,73 @@ export default function Disponibilidade() {
       if (disponibilidadeLocal.periodos.noite) periodosFormatados.push('noite');
     }
 
-    updateDisponibilidade(currentUserId, dateStr, periodosFormatados);
-    setHasChanges(false);
+    updateDisponibilidadeRange(currentUserId, datesToUpdate, periodosFormatados);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
+
+  // Mostrar as disponibilidades atuais registradas
+  const dispMap = currentUser?.disponibilidade || {};
+  const datasRegistradas = Object.keys(dispMap).sort();
 
   return (
     <div className="p-4 space-y-6 max-w-lg mx-auto pb-24">
       <div>
         <h1 className="text-xl font-bold text-slate-900 mb-1">Disponibilidade</h1>
-        <p className="text-sm text-slate-500">Informe quando você pode ser acionado para cirurgias.</p>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50">
-          <button onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))} className="p-1 hover:bg-slate-200 rounded">
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <span className="font-semibold text-slate-800 capitalize">
-            {format(currentWeekStart, 'MMMM yyyy', { locale: ptBR })}
-          </span>
-          <button onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))} className="p-1 hover:bg-slate-200 rounded">
-            <ChevronRight className="w-5 h-5 text-slate-600" />
-          </button>
-        </div>
-        
-        <div className="p-4">
-          <div className="flex justify-between gap-1 overflow-x-auto snap-x hide-scrollbar pb-2">
-            {weekDays.map(date => {
-              const isSelected = isSameDay(date, selectedDate);
-              const isToday = isSameDay(date, new Date());
-              return (
-                <button
-                  key={date.toString()}
-                  onClick={() => setSelectedDate(date)}
-                  className={clsx(
-                    "flex flex-col items-center p-2 rounded-xl min-w-[50px] snap-center transition-colors border",
-                    isSelected ? "bg-primary-600 text-white border-primary-600 shadow-md" : 
-                    isToday ? "bg-slate-50 border-primary-200 text-slate-900" : "bg-white border-slate-100 text-slate-600 hover:border-primary-200"
-                  )}
-                >
-                  <span className="text-[10px] uppercase font-medium opacity-80">
-                    {format(date, 'eee', { locale: ptBR }).substring(0, 3)}
-                  </span>
-                  <span className={clsx("text-lg font-bold mt-1", isSelected ? "text-white" : "text-slate-900")}>
-                    {format(date, 'd')}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <p className="text-sm text-slate-500">Informe quando você pode ser acionado para cirurgias informando um período de datas.</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 space-y-6">
-        <div className="flex items-center gap-2 text-slate-800 font-semibold mb-2">
-          <CalendarIcon className="w-5 h-5 text-primary-500" />
-          {format(selectedDate, "EEEE, d 'de' MMMM", { locale: ptBR })}
+        <h2 className="font-bold text-slate-800 border-b border-slate-100 pb-2">Nova Disponibilidade</h2>
+        
+        {errorMsg && (
+          <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm font-medium border border-red-200">
+            {errorMsg}
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Data Inicial</label>
+            <input 
+              type="date" 
+              value={dataInicial}
+              onChange={e => setDataInicial(e.target.value)}
+              className="w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Data Final</label>
+            <input 
+              type="date" 
+              value={dataFinal}
+              onChange={e => setDataFinal(e.target.value)}
+              className="w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-primary-500"
+            />
+          </div>
         </div>
 
-        <div className="space-y-3">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Dias da Semana</label>
+          <div className="flex flex-wrap gap-2">
+            {diasOptions.map(dia => (
+              <button
+                key={dia.id}
+                onClick={() => toggleDiaSemana(dia.id)}
+                className={clsx(
+                  "px-3 py-1.5 rounded-full text-xs font-bold border transition-colors",
+                  diasSemana.includes(dia.id) ? "bg-primary-600 text-white border-primary-600" : "bg-white text-slate-600 border-slate-300"
+                )}
+              >
+                {dia.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3 pt-2">
+          <label className="block text-sm font-medium text-slate-700">Turnos Disponíveis</label>
+          
           <button 
             onClick={handleDiaInteiroToggle}
             className={clsx(
@@ -230,8 +229,8 @@ export default function Disponibilidade() {
             )}
           >
             <div className="flex flex-col text-left">
-              <span className={clsx("font-bold", disponibilidadeLocal.indisponivel ? "text-red-900" : "text-slate-700")}>Indisponível</span>
-              <span className="text-xs text-slate-500">Não poderei ser acionado neste dia</span>
+              <span className={clsx("font-bold", disponibilidadeLocal.indisponivel ? "text-red-900" : "text-slate-700")}>Indisponível (Exceção)</span>
+              <span className="text-xs text-slate-500">Marque para bloquear dias específicos</span>
             </div>
             <div className={clsx("w-6 h-6 rounded-full border-2 flex items-center justify-center", disponibilidadeLocal.indisponivel ? "border-red-500 bg-red-500 text-white" : "border-slate-300 text-transparent")}>
               <X className="w-4 h-4" />
@@ -239,23 +238,58 @@ export default function Disponibilidade() {
           </button>
         </div>
 
-        {hasChanges && (
-          <div className="pt-4 border-t border-slate-100 flex gap-3">
-            <button className="flex-1 bg-white border border-slate-300 text-slate-700 py-3 rounded-xl font-bold text-sm hover:bg-slate-50">
-              Desfazer
-            </button>
-            <button onClick={handleSave} className="flex-1 bg-primary-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-primary-700 shadow-md shadow-primary-500/20">
-              Salvar Alterações
-            </button>
-          </div>
-        )}
+        <div className="pt-4 flex">
+          <button onClick={handleSave} className="w-full bg-primary-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-primary-700 shadow-md shadow-primary-500/20">
+            Salvar Período
+          </button>
+        </div>
 
         {saveSuccess && (
-          <div className="bg-emerald-50 text-emerald-800 text-sm font-bold p-3 rounded-lg flex justify-center items-center gap-2 border border-emerald-200">
-            <Check className="w-4 h-4" /> Atualizado com sucesso!
+          <div className="bg-emerald-50 text-emerald-800 text-sm font-bold p-3 rounded-lg flex justify-center items-center gap-2 border border-emerald-200 mt-2">
+            <Check className="w-4 h-4" /> Período salvo com sucesso!
           </div>
         )}
       </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <h2 className="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Datas Registradas</h2>
+        <div className="space-y-2 max-h-60 overflow-y-auto">
+          {datasRegistradas.length === 0 ? (
+            <p className="text-sm text-slate-500 text-center py-4">Nenhuma disponibilidade informada.</p>
+          ) : (
+            datasRegistradas.map(date => {
+              const periodos = dispMap[date];
+              return (
+                <div key={date} className="flex justify-between items-center p-3 border border-slate-100 rounded-lg">
+                  <div>
+                    <div className="font-medium text-slate-800 text-sm flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4 text-primary-500" />
+                      {format(parseISO(date), "dd/MM/yyyy")}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1 capitalize">
+                      {periodos.includes('indisponivel') ? (
+                        <span className="text-red-600 font-bold">Indisponível</span>
+                      ) : periodos.includes('integral') ? (
+                        <span className="text-emerald-600 font-bold">Dia Inteiro</span>
+                      ) : (
+                        periodos.join(', ')
+                      )}
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => updateDisponibilidadeRange(currentUserId, [date], ['indisponivel'])}
+                    title="Excluir/Marcar como indisponível"
+                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }

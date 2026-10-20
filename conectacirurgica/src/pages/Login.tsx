@@ -49,7 +49,7 @@ export default function Login() {
                 className="w-full flex items-center justify-center gap-3 px-4 py-4 border border-slate-300 rounded-lg shadow-sm text-base font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
               >
                 <Building2 className="w-5 h-5 text-slate-500" />
-                Sou Coordenadora
+                Painel de Gestão
               </button>
               <p className="mt-2 text-xs text-center text-slate-500">
                 Acessar visão desktop de gestão

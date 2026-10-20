@@ -1,11 +1,16 @@
-import { Calendar, MapPin, User, Clock, Download } from 'lucide-react';
-import { useState } from 'react';
+import { Calendar, MapPin, User, Clock, Download, Copy, Check } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { useStore } from '../../store/useStore';
 import { format, parseISO } from 'date-fns';
+import html2canvas from 'html2canvas';
+import clsx from 'clsx';
 
 export default function Confirmados() {
   const [selectedCirurgiaId, setSelectedCirurgiaId] = useState<number | null>(null);
   const { demandas, instrumentadores } = useStore();
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const confirmados = demandas.filter(d => ['confirmado', 'realizado'].includes(d.status));
   const selectedCirurgia = confirmados.find(c => c.id === selectedCirurgiaId);
@@ -13,6 +18,11 @@ export default function Confirmados() {
   const getInstName = (id?: number | null) => {
     if (!id) return 'Não alocado';
     return instrumentadores.find(i => i.id === id)?.nome || 'Desconhecido';
+  };
+
+  const getInstData = (id?: number | null) => {
+    if (!id) return null;
+    return instrumentadores.find(i => i.id === id);
   };
 
   const formatDate = (dateStr: string) => {
@@ -23,18 +33,48 @@ export default function Confirmados() {
     }
   };
 
-  const handleDownload = () => {
+  const handleCopyText = () => {
     if (!selectedCirurgia) return;
-    const content = `CARTÃO DE ACIONAMENTO\n\nProcedimento: ${selectedCirurgia.procedimento}\nData: ${formatDate(selectedCirurgia.data)}\nHora: ${selectedCirurgia.hora}\nHospital: ${selectedCirurgia.hospital}\nMédico: ${selectedCirurgia.medico}\nInstrumentador: ${getInstName(selectedCirurgia.instrumentadorId)}\n\nDocumento gerado para fins de demonstração na plataforma Conecta Cirúrgica.`;
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cartao_acionamento_${selectedCirurgia.id}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const inst = getInstData(selectedCirurgia.instrumentadorId);
+    
+    const text = `*CARTÃO DE ACIONAMENTO*\n\n` +
+      `*Procedimento:* ${selectedCirurgia.procedimento}\n` +
+      `*Data:* ${formatDate(selectedCirurgia.data)}\n` +
+      `*Hora:* ${selectedCirurgia.hora}\n` +
+      `*Hospital:* ${selectedCirurgia.hospital}\n` +
+      `*Médico:* ${selectedCirurgia.medico}\n` +
+      `*Valor:* ${selectedCirurgia.valorFreelancer || 'A combinar'}\n\n` +
+      `*Profissional Alocado:* ${inst?.nome}\n` +
+      `*Contato:* ${inst?.celular || 'Não informado'}\n`;
+      
+    navigator.clipboard.writeText(text).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    });
+  };
+
+  const handleDownloadImage = async () => {
+    if (!cardRef.current || !selectedCirurgia) return;
+    
+    try {
+      // Create canvas from the card element
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2, // better quality
+        backgroundColor: '#0f172a' // match slate-900 roughly
+      });
+      
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `Acionamento_${selectedCirurgia.procedimento.replace(/\s+/g, '_')}_${selectedCirurgia.data}.png`;
+      link.click();
+      
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2000);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      alert('Houve um erro ao gerar a imagem.');
+    }
   };
 
   return (
@@ -42,7 +82,7 @@ export default function Confirmados() {
       <div className="flex justify-between items-end flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Agenda Confirmada</h1>
-          <p className="text-slate-500">Acompanhe os acionamentos com aceite confirmado.</p>
+          <p className="text-slate-500">Acompanhe os acionamentos com aceite confirmado e gere cartões de acesso.</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <input type="date" className="border-slate-300 rounded-md shadow-sm text-sm p-2 border flex-1" />
@@ -111,55 +151,82 @@ export default function Confirmados() {
 
         {/* Cartão Lateral (Demonstrativo) */}
         {selectedCirurgia && (
-          <div className="bg-slate-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden h-fit lg:sticky lg:top-6 mt-6 lg:mt-0">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/20 rounded-bl-full -mr-8 -mt-8"></div>
-            
-            <div className="flex justify-between items-start relative z-10 mb-6">
-              <h2 className="text-lg font-bold text-slate-100">Cartão de Acionamento</h2>
-              <button onClick={handleDownload} title="Baixar Demonstrativo" className="p-1 hover:bg-slate-700 rounded-full transition-colors">
-                <Download className="w-5 h-5 text-emerald-400" />
-              </button>
-            </div>
-
-            <div className="space-y-6 relative z-10">
-              <div>
-                <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Procedimento</p>
-                <p className="text-xl font-bold">{selectedCirurgia.procedimento}</p>
-              </div>
+          <div className="space-y-4 h-fit lg:sticky lg:top-6 mt-6 lg:mt-0">
+            {/* The visual card to capture */}
+            <div ref={cardRef} className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/20 rounded-bl-full -mr-8 -mt-8"></div>
               
-              <div className="grid grid-cols-2 gap-4 border-y border-slate-700 py-4">
+              <div className="flex justify-between items-start relative z-10 mb-6">
+                <h2 className="text-lg font-bold text-slate-100 uppercase tracking-widest border-b border-primary-500/30 pb-2 inline-block">Cartão de Acionamento</h2>
+              </div>
+
+              <div className="space-y-6 relative z-10">
                 <div>
-                  <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Data</p>
-                  <p className="font-medium">{formatDate(selectedCirurgia.data)}</p>
+                  <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Procedimento</p>
+                  <p className="text-xl font-bold text-white">{selectedCirurgia.procedimento}</p>
                 </div>
+                
+                <div className="grid grid-cols-2 gap-4 border-y border-slate-700 py-4">
+                  <div>
+                    <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Data</p>
+                    <p className="font-medium text-lg">{formatDate(selectedCirurgia.data)}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Chegada</p>
+                    <p className="font-medium text-lg text-amber-400">{selectedCirurgia.hora}</p>
+                  </div>
+                </div>
+
                 <div>
-                  <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Chegada</p>
-                  <p className="font-medium">{selectedCirurgia.hora}</p>
+                  <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Local</p>
+                  <p className="font-medium mb-1">{selectedCirurgia.hospital}</p>
+                  <p className="text-sm text-slate-300">Apresentar documento na recepção</p>
                 </div>
-              </div>
 
-              <div>
-                <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Local</p>
-                <p className="font-medium mb-1">{selectedCirurgia.hospital}</p>
-                <p className="text-sm text-slate-300">Endereço Confidencial</p>
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Equipe Médica</p>
+                    <p className="font-medium">{selectedCirurgia.medico}</p>
+                  </div>
+                  {selectedCirurgia.valorFreelancer && (
+                    <div>
+                      <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Honorários</p>
+                      <p className="font-medium text-emerald-400">{selectedCirurgia.valorFreelancer}</p>
+                    </div>
+                  )}
+                </div>
 
-              <div>
-                <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Equipe Médica</p>
-                <p className="font-medium">{selectedCirurgia.medico}</p>
-              </div>
-
-              <div className="bg-slate-700/50 p-4 rounded-xl">
-                <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-2 flex items-center gap-2"><User className="w-4 h-4"/> Instrumentador Alocado</p>
-                <p className="font-bold text-lg text-emerald-400">{getInstName(selectedCirurgia.instrumentadorId)}</p>
+                <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                  <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-2 flex items-center gap-2"><User className="w-4 h-4"/> Instrumentador Alocado</p>
+                  <p className="font-bold text-lg text-white">{getInstName(selectedCirurgia.instrumentadorId)}</p>
+                  <p className="text-sm text-slate-400 mt-1">{getInstData(selectedCirurgia.instrumentadorId)?.celular}</p>
+                </div>
               </div>
             </div>
-            
-            <div className="mt-8 pt-4 border-t border-slate-700 relative z-10 text-center flex flex-col gap-2 items-center">
-              <button onClick={handleDownload} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-                <Download className="w-4 h-4" /> Download Demonstrativo
+
+            {/* Ações */}
+            <div className="flex flex-col gap-2">
+              <button 
+                onClick={handleCopyText} 
+                className={clsx(
+                  "w-full py-2.5 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2 border",
+                  copySuccess ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200"
+                )}
+              >
+                {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copySuccess ? 'Copiado para área de transferência' : 'Copiar Texto para WhatsApp'}
               </button>
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2">Documento Fictício para Demonstração</p>
+
+              <button 
+                onClick={handleDownloadImage} 
+                className={clsx(
+                  "w-full py-2.5 rounded-xl text-sm font-medium transition-colors flex justify-center items-center gap-2 shadow-sm",
+                  downloadSuccess ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-primary-600 hover:bg-primary-700 text-white"
+                )}
+              >
+                {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+                {downloadSuccess ? 'Imagem salva!' : 'Baixar Cartão (PNG)'}
+              </button>
             </div>
           </div>
         )}
