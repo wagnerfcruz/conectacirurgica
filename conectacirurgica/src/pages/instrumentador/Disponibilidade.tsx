@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { format, addDays, startOfWeek, addWeeks } from 'date-fns';
+import { format, addDays, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Check, X, Calendar as CalendarIcon } from 'lucide-react';
 import clsx from 'clsx';

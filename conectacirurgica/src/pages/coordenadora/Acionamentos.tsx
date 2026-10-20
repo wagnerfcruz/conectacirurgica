@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, MapPin, Search, Check, X, Clock } from 'lucide-react';
+import { Calendar, MapPin, Search, Check, X } from 'lucide-react';
 import clsx from 'clsx';
 
 export default function Acionamentos() {

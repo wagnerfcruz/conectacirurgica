@@ -1,4 +1,4 @@
-import { FileText, Download, Eye, AlertCircle } from 'lucide-react';
+import { Download, Eye, AlertCircle } from 'lucide-react';
 
 export default function Documentos() {
   const relatorios = [

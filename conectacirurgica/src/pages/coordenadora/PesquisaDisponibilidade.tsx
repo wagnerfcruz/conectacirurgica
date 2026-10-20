@@ -1,4 +1,4 @@
-import { Search as SearchIcon, Filter, CheckCircle } from 'lucide-react';
+import { Search as SearchIcon, CheckCircle } from 'lucide-react';
 
 export default function PesquisaDisponibilidade() {
   return (
