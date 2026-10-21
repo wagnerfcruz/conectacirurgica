@@ -55,7 +55,7 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
         {/* CABEÇALHO */}
         <div className="flex justify-between items-center px-8 py-5">
           <div className="flex items-center gap-4">
-            <img src={empresaConfig.logoUrl || '/meditec_logo.png'} alt="Logo" className="w-auto h-16" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            <img src={empresaConfig.logoUrl && empresaConfig.logoUrl !== "/meditec_logo.png" ? empresaConfig.logoUrl : `${import.meta.env.BASE_URL}meditec_logo.png`.replace("//", "/")} alt="Logo" className="w-auto h-16" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             <div className="flex flex-col">
               <h1 className="text-[42px] font-black tracking-tighter leading-none" style={{ color: textColor }}>
                 {empresaConfig.nome || 'MEDITEC'}
@@ -231,6 +231,8 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
                     <span className="font-bold">Produto:</span> {p.descricao} <span className="font-bold">Qtd:</span> {p.quantidade} {p.codigoReferencia ? `Lbl4: ${p.codigoReferencia}` : ''}
                   </p>
                 ))
+              ) : demanda?.produtos && demanda.produtos.trim() !== '' ? (
+                <div className="whitespace-pre-wrap">{demanda.produtos}</div>
               ) : (
                 <p>Sem dados</p>
               )}
@@ -250,9 +252,11 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
               {demanda?.equipamentosLista && demanda.equipamentosLista.length > 0 ? (
                 demanda.equipamentosLista.map((e, i) => (
                   <p key={i} className="mb-1 last:mb-0">
-                    <span className="font-bold">Servico:</span> {e.descricao}
+                    <span className="font-bold">Serviço:</span> {e.descricao}
                   </p>
                 ))
+              ) : demanda?.equipamentos && demanda.equipamentos.trim() !== '' ? (
+                <div className="whitespace-pre-wrap">{demanda.equipamentos}</div>
               ) : (
                 <p>Sem dados</p>
               )}

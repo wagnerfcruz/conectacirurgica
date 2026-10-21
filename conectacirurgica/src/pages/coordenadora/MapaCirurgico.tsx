@@ -22,6 +22,7 @@ export default function MapaCirurgico() {
     { key: 'status', label: 'Status da Demanda' },
     { key: 'dataHora', label: 'Data e Hora (Planilha)' },
     { key: 'paciente', label: 'Paciente' },
+    { key: 'empresa', label: 'Empresa Contratante' },
     { key: 'medico', label: 'Médico Responsável' },
     { key: 'convenio', label: 'Convênio' },
     { key: 'hospital', label: 'Hospital' },
@@ -98,25 +99,46 @@ export default function MapaCirurgico() {
     // Auto-mapeamento focado na planilha MEDITEC
     const initialMapping: Record<string, string> = {};
     const meditecMap: Record<string, string> = {
-      'Num Cirurgia': 'mc',
-      'Status': 'status',
-      'Data': 'dataHora',
-      'Paciente': 'paciente',
-      'Médico': 'medico',
-      'Convênio': 'convenio',
-      'Hospital': 'hospital',
-      'Procedimento': 'procedimento',
-      'Produtos': 'produtos',
-      'Produtos p/ Doação': 'produtosDoacao',
-      'Servicos/equipamentos': 'equipamentos',
-      'Representante': 'representante',
-      'Emergencia': 'emergencia',
-      'Obs': 'obs',
-      'Retorno OF': 'retornoOp'
+      'num cirurgia': 'mc',
+      'n cirurgia': 'mc',
+      'nº cirurgia': 'mc',
+      'numero cirurgia': 'mc',
+      'mc': 'mc',
+      'status': 'status',
+      'empresa': 'empresa',
+      'data': 'dataHora',
+      'data e hora': 'dataHora',
+      'data/hora': 'dataHora',
+      'paciente': 'paciente',
+      'nome do paciente': 'paciente',
+      'médico': 'medico',
+      'medico': 'medico',
+      'convênio': 'convenio',
+      'convenio': 'convenio',
+      'hospital': 'hospital',
+      'local': 'hospital',
+      'procedimento': 'procedimento',
+      'produtos': 'produtos',
+      'produtos p/ doação': 'produtosDoacao',
+      'produtos p/ doacao': 'produtosDoacao',
+      'serviços/equipamentos': 'equipamentos',
+      'servicos/equipamentos': 'equipamentos',
+      'equipamentos': 'equipamentos',
+      'representante': 'representante',
+      'emergência': 'emergencia',
+      'emergencia': 'emergencia',
+      'obs': 'obs',
+      'observação': 'obs',
+      'observacao': 'obs',
+      'retorno of': 'retornoOp'
     };
 
     headers.forEach(header => {
-      const matchKey = Object.keys(meditecMap).find(k => k.toLowerCase() === header.toLowerCase());
+      const normalizedHeader = header.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      const matchKey = Object.keys(meditecMap).find(k => {
+        const normalizedKey = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        return normalizedHeader.includes(normalizedKey) || normalizedKey === normalizedHeader;
+      });
       if (matchKey) {
         initialMapping[header] = meditecMap[matchKey];
       }
@@ -224,6 +246,7 @@ export default function MapaCirurgico() {
     const colDataHora = Object.keys(fieldMapping).find(k => fieldMapping[k] === 'dataHora')!;
     const colStatus = Object.keys(fieldMapping).find(k => fieldMapping[k] === 'status');
     const colPaciente = Object.keys(fieldMapping).find(k => fieldMapping[k] === 'paciente');
+    const colEmpresa = Object.keys(fieldMapping).find(k => fieldMapping[k] === 'empresa');
     const colMedico = Object.keys(fieldMapping).find(k => fieldMapping[k] === 'medico');
     const colConvenio = Object.keys(fieldMapping).find(k => fieldMapping[k] === 'convenio');
     const colHospital = Object.keys(fieldMapping).find(k => fieldMapping[k] === 'hospital');
@@ -282,7 +305,7 @@ export default function MapaCirurgico() {
             procedimento: getValue(colProcedimento) || '',
             medico: getValue(colMedico) || 'Não informado',
             paciente: getValue(colPaciente) || '',
-            empresa: 'MEDITEC', // Baseado no contexto do fixture, mas deve ser parametrizado no futuro
+            empresa: getValue(colEmpresa) || 'MEDITEC',
             convenio: getValue(colConvenio) || '',
             representante: getValue(colRepresentante) || '',
             produtos: getValue(colProdutos) || '',
