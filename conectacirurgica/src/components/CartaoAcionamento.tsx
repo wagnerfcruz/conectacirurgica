@@ -2,12 +2,13 @@ import { forwardRef } from 'react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
-  User, Calendar, Clock, MapPin, Activity, 
-  CheckCircle, FileText, AlertTriangle, Building, 
-  Briefcase, Phone, DollarSign 
+  User, Calendar, Clock, Building, 
+  Briefcase, Phone, DollarSign, Stethoscope, 
+  ClipboardList, Package, Settings, CheckCircle2, 
+  AlertTriangle, FileText
 } from 'lucide-react';
 import type { Demanda, Instrumentador, EquipamentoServico } from '../store/useStore';
-import useStore from '../store/useStore';
+import { useStore } from '../store/useStore';
 
 interface CartaoAcionamentoProps {
   demanda: Demanda;
@@ -15,7 +16,7 @@ interface CartaoAcionamentoProps {
   scale?: number;
 }
 
-const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ demanda, instrumentador, scale = 0.5 }, ref) => {
+const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ demanda, instrumentador, scale = 1 }, ref) => {
   const { empresaConfig } = useStore();
   
   const formatDateString = (dateStr: string) => {
@@ -33,257 +34,272 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
     return val;
   };
 
+  const borderColor = '#9CD7E8';
+  const textColor = '#0F2133';
+  const cyanBg = '#B2EBF5';
+  const darkBlue = '#013951';
+  const labelColor = '#3A4C62';
+
+  // SVG Logo Spine (approximating MEDITEC spine logo)
+  const SpineLogo = () => (
+    <svg width="28" height="60" viewBox="0 0 28 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22 4C22 4 10 12 10 30C10 48 22 56 22 56" stroke="#0F2133" strokeWidth="4" strokeLinecap="round"/>
+      <path d="M14 12L4 12M12 20L2 20M10 28L0 28M10 36L0 36M12 44L2 44M14 52L4 52" stroke="#2FA8CA" strokeWidth="3" strokeLinecap="round"/>
+    </svg>
+  );
+
   return (
     <div style={{ width: 700 * scale, height: 1280 * scale, overflow: 'hidden' }}>
       <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: 700, height: 1280 }}>
         <div 
           ref={ref} 
-          className="w-[700px] h-[1280px] bg-[#1C3259] relative flex items-center justify-center p-8 shrink-0 mx-auto" 
-          style={{ fontFamily: 'Inter, sans-serif', boxSizing: 'border-box' }}
+          className="w-[700px] h-[1280px] relative flex items-center justify-center p-6 shrink-0 mx-auto" 
+          style={{ fontFamily: 'Montserrat, Inter, sans-serif', boxSizing: 'border-box', backgroundColor: '#11223F' }}
         >
-          <div className="w-full h-full bg-white rounded-3xl border-4 border-[#2ABFCF] flex flex-col overflow-hidden relative shadow-2xl">
+          <div className="w-full h-full bg-white rounded-[1.5rem] flex flex-col relative overflow-hidden" style={{ border: `4px solid ${borderColor}` }}>
             
             {/* CABEÇALHO */}
-            <div className="flex justify-between items-center px-10 py-8 border-b-4 border-[#AFEAF8]">
-              <div className="flex items-center gap-4">
+            <div className="flex justify-between items-center px-8 py-5">
+              <div className="flex items-center gap-3">
                 {empresaConfig.logoUrl ? (
-                  <img src={empresaConfig.logoUrl} alt="Logo" className="w-16 h-16 object-contain" />
-                ) : null}
-                <div className="flex flex-col">
-                  <h1 className="text-5xl font-black tracking-tighter text-[#1C3259] leading-none">
-                    {empresaConfig.nome || 'CONECTA'}
+                  <img src={empresaConfig.logoUrl} alt="Logo" className="w-auto h-14" />
+                ) : (
+                  <SpineLogo />
+                )}
+                <div className="flex flex-col mt-1">
+                  <h1 className="text-[52px] font-black tracking-tighter leading-none" style={{ color: textColor }}>
+                    {empresaConfig.nome || 'MEDITEC'}
                   </h1>
-                  <p className="text-sm tracking-[0.2em] text-slate-500 font-bold uppercase mt-1">
-                    {empresaConfig.tagline || 'CIRÚRGICA'}
+                  <p className="text-[11px] font-bold tracking-[0.1em] mt-1" style={{ color: '#2FA8CA' }}>
+                    {empresaConfig.tagline || 'MEDICINA COM TECNOLOGIA'}
                   </p>
                 </div>
               </div>
-              <div className="text-right border-l-4 border-slate-200 pl-6 py-2">
-                <p className="text-lg uppercase text-slate-500 font-bold tracking-wide">
-                  {demanda.tipoEvento || empresaConfig.headerTitleLine1 || 'AGENDAMENTO'}
+              <div className="text-left border-l-[3px] pl-4 py-1" style={{ borderColor: textColor }}>
+                <p className="text-[14px] uppercase font-medium leading-none" style={{ color: textColor }}>
+                  {empresaConfig.headerTitleLine1 || 'AGENDAMENTO'}
                 </p>
-                <p className="text-3xl font-black text-[#1C3259] uppercase tracking-tight">
+                <p className="text-[26px] font-black uppercase leading-tight mt-1" style={{ color: textColor }}>
                   {empresaConfig.headerTitleLine2 || 'FREELANCE'}
                 </p>
               </div>
             </div>
 
-            {/* TOP ROW: Instrumentador & MC */}
-            <div className="px-10 py-8 flex gap-6">
-              <div className="flex-1 bg-[#E3F6FD] rounded-2xl p-6 flex items-center gap-6 border-2 border-[#AFEAF8]">
-                <div className="w-16 h-16 bg-[#013A55] text-white rounded-full flex items-center justify-center shrink-0 shadow-md">
-                  <User className="w-8 h-8" />
-                </div>
-                <div>
-                  <p className="text-sm text-[#013A55] font-bold uppercase mb-1 tracking-wider">INSTRUMENTADOR(A)</p>
-                  <p className="font-black text-[#1C3259] text-3xl uppercase leading-tight line-clamp-2">
-                    {fallback(instrumentador.nome, 'NÃO INFORMADO')}
-                  </p>
-                  <p className="text-sm font-bold text-slate-600 uppercase mt-1">
-                    ({fallback(instrumentador.nivel, 'NÍVEL NÃO INFORMADO')})
-                  </p>
-                </div>
+            {/* INSTRUMENTADOR & MC */}
+            <div className="relative px-8 py-5 flex items-center gap-5 border-y-[3px]" style={{ backgroundColor: cyanBg, borderColor }}>
+              <div className="text-[#013951]">
+                <User size={38} strokeWidth={2.5} />
+              </div>
+              <div className="flex-1 mt-1">
+                <p className="text-[12px] font-medium uppercase" style={{ color: '#013951' }}>INSTRUMENTADOR(A)</p>
+                <p className="font-black text-[24px] uppercase leading-none mt-1" style={{ color: '#013951' }}>
+                  {fallback(instrumentador.nome, 'NÃO INFORMADO')}
+                </p>
+                <p className="text-[14px] font-bold uppercase mt-1" style={{ color: '#013951' }}>
+                  ({fallback(instrumentador.nivel, 'NÍVEL 1')})
+                </p>
               </div>
               
-              <div className="w-48 bg-[#1C3259] rounded-2xl p-6 flex flex-col items-center justify-center text-white shrink-0 shadow-xl">
-                <p className="text-sm text-slate-300 font-bold uppercase mb-1 tracking-widest">MC:</p>
-                <p className="text-5xl font-black truncate w-full text-center">{fallback(demanda.mc, '---')}</p>
+              <div className="w-[140px] rounded-[14px] flex flex-col items-center justify-center shadow-md absolute right-8" style={{ backgroundColor: darkBlue, height: '85px' }}>
+                <p className="text-[12px] font-bold text-white uppercase mt-1">MC:</p>
+                <p className="text-[40px] font-black text-white leading-none mt-0">{fallback(demanda.mc, '---')}</p>
               </div>
             </div>
 
-            {/* DADOS PRINCIPAIS */}
-            <div className="flex-1 flex flex-col">
-              {/* PACIENTE */}
-              <div className="px-10 py-5 border-y-2 border-[#AFEAF8] flex items-center gap-6">
-                <div className="w-12 h-12 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500">
-                  <User className="w-6 h-6" />
+            {/* PACIENTE */}
+            <div className="px-8 py-[14px] flex items-center gap-6">
+              <div className="w-10 h-10 rounded-full border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                <User size={20} strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-medium uppercase" style={{ color: labelColor }}>PACIENTE</p>
+                <p className="font-black uppercase text-[20px] mt-0.5" style={{ color: textColor }}>
+                  {fallback(demanda.paciente, 'NÃO INFORMADO')}
+                </p>
+              </div>
+            </div>
+
+            {/* EMPRESA & CONVENIO */}
+            <div className="grid grid-cols-2 border-t-[2px]" style={{ borderColor }}>
+              <div className="px-8 py-[14px] border-r-[2px] flex items-center gap-6" style={{ borderColor }}>
+                <div className="w-10 h-10 rounded-[10px] border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                  <Building size={20} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-500 font-bold uppercase mb-1">PACIENTE</p>
-                  <p className="font-black text-[#1C3259] uppercase text-xl truncate">
-                    {fallback(demanda.paciente, 'NÃO INFORMADO')}
+                  <p className="text-[12px] font-medium uppercase" style={{ color: labelColor }}>EMPRESA</p>
+                  <p className="font-black uppercase text-[20px] mt-0.5" style={{ color: textColor }}>
+                    {fallback(demanda.empresa, 'NÃO INFORMADA')}
                   </p>
                 </div>
               </div>
-
-              {/* EMPRESA & CONVENIO */}
-              <div className="grid grid-cols-2">
-                <div className="px-10 py-5 border-b-2 border-r-2 border-[#AFEAF8] flex items-center gap-6">
-                  <div className="w-12 h-12 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500">
-                    <Building className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-500 font-bold uppercase mb-1">EMPRESA</p>
-                    <p className="font-black text-[#1C3259] uppercase text-xl truncate">
-                      {fallback(demanda.empresa, 'NÃO INFORMADA')}
-                    </p>
-                  </div>
-                </div>
-                <div className="px-10 py-5 border-b-2 border-[#AFEAF8] flex items-center gap-6">
-                  <div className="w-12 h-12 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500">
-                    <Briefcase className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-500 font-bold uppercase mb-1">CONVÊNIO</p>
-                    <p className="font-black text-[#1C3259] uppercase text-xl truncate">
-                      {fallback(demanda.convenio, 'NÃO INFORMADO')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* HOSPITAL */}
-              <div className="px-10 py-5 border-b-2 border-[#AFEAF8] flex items-center gap-6 bg-slate-50">
-                <div className="w-12 h-12 rounded-full border-2 border-[#2ABFCF] bg-white flex items-center justify-center shrink-0 text-[#013A55] shadow-sm">
-                  <MapPin className="w-6 h-6" />
+              <div className="px-8 py-[14px] flex items-center gap-6">
+                <div className="w-10 h-10 rounded-xl border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                  <Briefcase size={20} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-500 font-bold uppercase mb-1">HOSPITAL</p>
-                  <p className="font-black text-[#1C3259] uppercase text-2xl truncate">
-                    {fallback(demanda.hospital, 'NÃO INFORMADO')}
+                  <p className="text-[12px] font-medium uppercase" style={{ color: labelColor }}>CONVÊNIO</p>
+                  <p className="font-black uppercase text-[20px] truncate mt-0.5" style={{ color: textColor }}>
+                    {fallback(demanda.convenio, 'NÃO INFORMADO')}
                   </p>
                 </div>
               </div>
+            </div>
 
-              {/* DATA & HORA */}
-              <div className="grid grid-cols-2">
-                <div className="px-10 py-5 border-b-2 border-r-2 border-[#AFEAF8] flex items-center gap-6 bg-[#E3F6FD]">
-                  <div className="w-12 h-12 rounded-full border-2 border-[#2ABFCF] bg-white flex items-center justify-center shrink-0 text-[#013A55] shadow-sm">
-                    <Calendar className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#013A55] font-bold uppercase mb-1">DATA DA CIRURGIA</p>
-                    <p className="font-black text-[#1C3259] uppercase text-xl truncate">
-                      {demanda.data ? formatDateString(demanda.data) : 'SEM DADOS'}
-                    </p>
-                  </div>
-                </div>
-                <div className="px-10 py-5 border-b-2 border-[#AFEAF8] flex items-center gap-6 bg-[#E3F6FD]">
-                  <div className="w-12 h-12 rounded-full border-2 border-[#2ABFCF] bg-white flex items-center justify-center shrink-0 text-[#013A55] shadow-sm">
-                    <Clock className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#013A55] font-bold uppercase mb-1">HORÁRIO</p>
-                    <p className="font-black text-[#1C3259] uppercase text-3xl truncate">
-                      {fallback(demanda.hora, '--:--')}
-                    </p>
-                  </div>
-                </div>
+            {/* HOSPITAL */}
+            <div className="px-8 py-[14px] border-t-[2px] flex items-center gap-6" style={{ borderColor }}>
+              <div className="w-10 h-10 rounded-[10px] border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                <Building size={20} strokeWidth={2} />
               </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-medium uppercase" style={{ color: labelColor }}>HOSPITAL</p>
+                <p className="font-black uppercase text-[20px] mt-0.5" style={{ color: textColor }}>
+                  {fallback(demanda.hospital, 'NÃO INFORMADO')}
+                </p>
+              </div>
+            </div>
 
-              {/* FAIXA AMARELA DE EVENTO (REAGENDAMENTO) */}
-              {isReagendamento && (
-                <div className="bg-amber-400 text-amber-900 font-black text-center py-3 uppercase text-lg tracking-widest shadow-inner border-y border-amber-500">
-                  ATENÇÃO: ESTA CIRURGIA FOI REAGENDADA
-                </div>
-              )}
-
-              {/* PROCEDIMENTO */}
-              <div className="px-10 py-5 border-b-2 border-[#AFEAF8] flex items-center gap-6">
-                <div className="w-12 h-12 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500">
-                  <Activity className="w-6 h-6" />
+            {/* DATA & HORA */}
+            <div className="grid grid-cols-[1.5fr_1fr] border-t-[2px]" style={{ borderColor }}>
+              <div className="px-8 py-[14px] border-r-[2px] flex items-center gap-5" style={{ borderColor }}>
+                <div className="w-10 h-10 rounded-[10px] border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor, backgroundColor: cyanBg }}>
+                  <Calendar size={20} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-500 font-bold uppercase mb-1">PROCEDIMENTO</p>
-                  <p className="font-black text-[#1C3259] uppercase text-xl line-clamp-2 leading-tight">
-                    {fallback(demanda.procedimento, 'NÃO INFORMADO')}
+                  <p className="text-[12px] font-medium uppercase" style={{ color: labelColor }}>DATA</p>
+                  <p className="font-black uppercase text-[18px] mt-0.5 tracking-tight" style={{ color: textColor }}>
+                    {demanda.data ? formatDateString(demanda.data) : 'SEM DADOS'}
                   </p>
                 </div>
               </div>
-
-              {/* MÉDICO */}
-              <div className="px-10 py-5 flex items-center gap-6">
-                <div className="w-12 h-12 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500">
-                  <User className="w-6 h-6" />
+              <div className="px-6 py-[14px] flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor, backgroundColor: cyanBg }}>
+                  <Clock size={20} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-500 font-bold uppercase mb-1">MÉDICO</p>
-                  <p className="font-black text-[#1C3259] uppercase text-xl truncate">
-                    {fallback(demanda.medico, 'NÃO INFORMADO')}
+                  <p className="text-[11px] font-medium uppercase leading-[1.1]" style={{ color: labelColor }}>HORÁRIO DA<br/>CIRURGIA</p>
+                  <p className="font-black uppercase text-[20px] mt-0.5" style={{ color: textColor }}>
+                    {fallback(demanda.hora, '--:--')}
                   </p>
                 </div>
               </div>
+            </div>
 
-              {/* PRODUTOS E MATERIAIS */}
-              <div className="mx-10 mt-2 mb-4 border-2 border-[#AFEAF8] rounded-2xl overflow-hidden flex-1 flex flex-col shadow-sm">
-                <div className="bg-[#E3F6FD] px-6 py-4 flex items-center gap-3 border-b-2 border-[#AFEAF8] shrink-0">
-                  <div className="w-8 h-8 rounded-full border-2 border-[#2ABFCF] flex items-center justify-center text-[#013A55] bg-white">
-                    <div className="w-4 h-4 bg-[#013A55] rounded-full" />
-                  </div>
-                  <p className="font-black text-lg text-[#1C3259] uppercase tracking-wide">PRODUTOS E MATERIAIS</p>
-                </div>
-                <div className="bg-white p-6 text-lg text-slate-700 whitespace-pre-wrap overflow-y-auto flex-1 font-medium leading-relaxed">
+            {/* FAIXA AMARELA (REAGENDAMENTO) */}
+            {isReagendamento && (
+              <div className="w-full py-2.5 flex items-center px-8 border-t-[2px] border-b-[2px]" style={{ backgroundColor: '#FDF152', borderColor }}>
+                <p className="font-black text-[18px] text-black uppercase tracking-wide">
+                  REAGENDAMENTO
+                </p>
+              </div>
+            )}
+
+            {/* MEDICO */}
+            <div className="px-8 py-[14px] border-t-[2px] flex items-center gap-6" style={{ borderColor }}>
+              <div className="w-10 h-10 rounded-full border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                <Stethoscope size={20} strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-medium uppercase" style={{ color: labelColor }}>MÉDICO</p>
+                <p className="font-black uppercase text-[20px] mt-0.5" style={{ color: textColor }}>
+                  {fallback(demanda.medico, 'NÃO INFORMADO')}
+                </p>
+              </div>
+            </div>
+
+            {/* PROCEDIMENTO */}
+            <div className="px-8 py-[14px] border-t-[2px] flex items-center gap-6" style={{ borderColor }}>
+              <div className="w-10 h-10 rounded-md border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                <ClipboardList size={20} strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-medium uppercase" style={{ color: labelColor }}>PROCEDIMENTO</p>
+                <p className="font-black uppercase text-[20px] line-clamp-1 mt-0.5" style={{ color: textColor }}>
+                  {fallback(demanda.procedimento, 'NÃO INFORMADO')}
+                </p>
+              </div>
+            </div>
+
+            {/* PRODUTOS / MATERIAIS */}
+            <div className="px-8 py-[14px] border-t-[2px] flex items-start gap-6" style={{ borderColor }}>
+              <div className="w-10 h-10 rounded-[10px] border-[2.5px] flex items-center justify-center shrink-0 mt-1" style={{ borderColor, color: textColor }}>
+                <Package size={20} strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-black uppercase text-[19px]" style={{ color: textColor }}>PRODUTOS / MATERIAIS</p>
+                <div className="text-[16px] font-medium mt-1 leading-snug" style={{ color: textColor }}>
                   {demanda.produtosLista && demanda.produtosLista.length > 0 ? (
                     demanda.produtosLista.map((p, i) => (
-                      <div key={i} className="mb-2"><strong>{p.quantidade}x</strong> {p.descricao}</div>
+                      <span key={i}><strong>{p.quantidade}x</strong> {p.descricao}{i < demanda.produtosLista!.length - 1 ? '; ' : ''}</span>
                     ))
                   ) : demanda.produtos ? (
                     demanda.produtos
                   ) : (
-                    'SEM DADOS'
+                    'Sem dados'
                   )}
                 </div>
               </div>
+            </div>
 
-              {/* EQUIPAMENTOS */}
-              <div className="mx-10 mb-6 border-2 border-[#AFEAF8] rounded-2xl overflow-hidden shrink-0 shadow-sm">
-                <div className="bg-[#E3F6FD] px-6 py-4 flex items-center gap-3 border-b-2 border-[#AFEAF8]">
-                  <div className="w-8 h-8 rounded-full border-2 border-[#2ABFCF] flex items-center justify-center text-[#013A55] bg-white">
-                    <div className="w-4 h-4 bg-[#013A55] rounded-full" />
-                  </div>
-                  <p className="font-black text-lg text-[#1C3259] uppercase tracking-wide">EQUIPAMENTOS / SERVIÇOS</p>
-                </div>
-                <div className="bg-white p-6 text-lg text-slate-700 whitespace-pre-wrap font-medium leading-relaxed">
+            {/* EQUIPAMENTOS / SERVICOS */}
+            <div className="px-8 py-[14px] border-t-[2px] flex items-start gap-6" style={{ borderColor }}>
+              <div className="w-10 h-10 rounded-[10px] border-[2.5px] flex items-center justify-center shrink-0 mt-1" style={{ borderColor, color: textColor }}>
+                <Settings size={20} strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-black uppercase text-[19px]" style={{ color: textColor }}>EQUIPAMENTOS / SERVIÇOS</p>
+                <div className="text-[16px] font-medium mt-1 leading-snug" style={{ color: textColor }}>
                   {demanda.equipamentosLista && demanda.equipamentosLista.length > 0 ? (
                     demanda.equipamentosLista.map((e: EquipamentoServico, i: number) => (
-                      <div key={i} className="mb-1"><strong>{e.descricao}</strong> {e.quantidade ? `Qtd: ${e.quantidade}` : ''}</div>
+                      <span key={i}><strong>{e.descricao}</strong> {e.quantidade ? `Qtd: ${e.quantidade}` : ''}{i < demanda.equipamentosLista!.length - 1 ? '; ' : ''}</span>
                     ))
                   ) : demanda.equipamentos ? (
                      demanda.equipamentos
                   ) : (
-                    'SEM DADOS'
+                    'Sem dados'
                   )}
                 </div>
               </div>
-
             </div>
 
-            {/* FOOTER GRID */}
-            <div className="px-10 py-6 border-t-4 border-[#AFEAF8] bg-[#F8FAFC] grid grid-cols-2 gap-8 shrink-0">
+            {/* FOOTER */}
+            <div className="flex-1 border-t-[2px] grid grid-cols-2" style={{ borderColor }}>
               
               {/* LEFT COL */}
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500 bg-white">
-                    <Phone className="w-5 h-5" />
+              <div className="border-r-[2px] flex flex-col" style={{ borderColor }}>
+                {/* Representante */}
+                <div className="px-8 py-5 flex items-center gap-4">
+                  <div className="w-9 h-9 rounded-xl border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                    <Phone size={18} strokeWidth={2} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-500 font-bold uppercase mb-1">REPRESENTANTE</p>
-                    <p className="font-black text-[#1C3259] uppercase text-lg leading-tight truncate">
+                  <div>
+                    <p className="text-[11px] font-medium uppercase" style={{ color: labelColor }}>REPRESENTANTE</p>
+                    <p className="font-black uppercase text-[16px] leading-tight mt-0.5" style={{ color: textColor }}>
                       {fallback(demanda.representante)}
                     </p>
                   </div>
                 </div>
 
-                <div className="border-2 rounded-2xl p-4 flex items-center gap-4 bg-white shadow-sm" style={{ borderColor: '#AFEAF8' }}>
-                  <div className="w-12 h-12 rounded-full border-2 border-[#1C3259] bg-[#E3F6FD] flex items-center justify-center shrink-0 text-[#1C3259]">
-                    <DollarSign className="w-6 h-6" />
+                {/* Valor do Free */}
+                <div className="px-8 flex-1 flex items-center gap-4 pb-2">
+                  <div className="w-12 h-12 rounded-full border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor: darkBlue, color: darkBlue, backgroundColor: cyanBg }}>
+                    <DollarSign size={24} strokeWidth={2.5} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-500 font-bold uppercase mb-1">VALOR DO FREE</p>
-                    <p className="font-black text-2xl text-[#1C3259] truncate">
-                      {fallback(demanda.valorFreelancer, 'A COMBINAR')}
+                  <div>
+                    <p className="text-[11px] font-medium uppercase" style={{ color: labelColor }}>VALOR DO FREE</p>
+                    <p className="font-black text-[26px] tracking-tight mt-0.5 leading-none" style={{ color: textColor }}>
+                      {fallback(demanda.valorFreelancer, 'R$ 0,00')}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500 bg-white">
-                    <FileText className="w-5 h-5" />
+                {/* Retorno OF */}
+                <div className="px-8 py-5 flex items-center gap-4 border-t-[2px]" style={{ borderColor }}>
+                  <div className="w-9 h-9 rounded-md border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                    <ClipboardList size={18} strokeWidth={2} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-500 font-bold uppercase mb-1">RETORNO OF</p>
-                    <p className="font-black text-[#1C3259] uppercase text-lg leading-tight truncate">
+                  <div>
+                    <p className="text-[11px] font-medium uppercase" style={{ color: labelColor }}>RETORNO OF</p>
+                    <p className="font-black uppercase text-[16px] leading-tight mt-0.5" style={{ color: textColor }}>
                       {fallback(demanda.retornoOp)}
                     </p>
                   </div>
@@ -291,39 +307,42 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
               </div>
 
               {/* RIGHT COL */}
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full border-2 border-[#2ABFCF] bg-[#E3F6FD] flex items-center justify-center shrink-0 text-[#013A55]">
-                    <CheckCircle className="w-5 h-5" />
+              <div className="flex flex-col">
+                {/* Confirmação */}
+                <div className="px-6 py-5 flex items-center gap-4 border-b-[2px]" style={{ borderColor }}>
+                  <div className="w-9 h-9 rounded-full border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                    <CheckCircle2 size={18} strokeWidth={2} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#013A55] font-bold uppercase mb-1">CONFIRMAÇÃO</p>
-                    <p className="font-black text-[#1C3259] uppercase text-lg leading-tight truncate">
+                  <div>
+                    <p className="text-[11px] font-medium uppercase" style={{ color: labelColor }}>CONFIRMAÇÃO</p>
+                    <p className="font-black uppercase text-[16px] leading-tight mt-0.5" style={{ color: textColor }}>
                       {fallback(demanda.confirmacao)}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 text-slate-500 bg-white">
-                    <FileText className="w-5 h-5" />
+                {/* Observações */}
+                <div className="px-6 py-5 flex-1 flex items-start gap-4 border-b-[2px]" style={{ borderColor }}>
+                  <div className="w-9 h-9 rounded-md border-[2.5px] flex items-center justify-center shrink-0 mt-0.5" style={{ borderColor, color: textColor }}>
+                    <FileText size={18} strokeWidth={2} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-500 font-bold uppercase mb-1">OBSERVAÇÕES</p>
-                    <p className="font-black text-[#1C3259] uppercase text-lg leading-tight line-clamp-3">
+                  <div>
+                    <p className="text-[11px] font-medium uppercase" style={{ color: labelColor }}>OBSERVAÇÕES</p>
+                    <p className="font-black uppercase text-[16px] leading-tight mt-0.5" style={{ color: textColor }}>
                       {fallback(demanda.observacoes)}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full border-2 border-red-300 bg-red-50 flex items-center justify-center shrink-0 text-red-500">
-                    <AlertTriangle className="w-5 h-5" />
+                {/* Emergência */}
+                <div className="px-6 py-5 flex items-center gap-4">
+                  <div className="w-9 h-9 rounded-full border-[2.5px] flex items-center justify-center shrink-0" style={{ borderColor, color: textColor }}>
+                    <AlertTriangle size={18} strokeWidth={2} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-red-500 font-bold uppercase mb-1">EMERGÊNCIA</p>
-                    <p className="font-black text-red-600 uppercase text-xl leading-tight truncate">
-                      {demanda.emergencia ? 'SIM - URGENTE' : 'NÃO'}
+                  <div>
+                    <p className="text-[11px] font-medium uppercase" style={{ color: labelColor }}>EMERGÊNCIA</p>
+                    <p className="font-black uppercase text-[16px] leading-tight mt-0.5" style={{ color: textColor }}>
+                      {demanda.emergencia ? 'SIM' : 'NAO'}
                     </p>
                   </div>
                 </div>
