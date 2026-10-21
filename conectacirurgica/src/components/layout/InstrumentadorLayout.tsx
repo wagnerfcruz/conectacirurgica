@@ -1,13 +1,12 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { CalendarDays, History, LogOut, User, Menu, X, Clock } from 'lucide-react';
-import { useState } from 'react';
+import { CalendarDays, History, LogOut, User, Clock } from 'lucide-react';
+
 import clsx from 'clsx';
 import { useStore } from '../../store/useStore';
 
 export default function InstrumentadorLayout() {
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { instrumentadores } = useStore();
+    const { instrumentadores } = useStore();
   const currentUser = instrumentadores.find(i => i.id === 1);
 
   const navItems = [
@@ -17,27 +16,15 @@ export default function InstrumentadorLayout() {
     { to: '/instrumentador/perfil', icon: User, label: 'Meu Perfil' },
   ];
 
-  const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans pb-[70px] lg:pb-0">
       
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden" onClick={closeMenu}></div>
-      )}
-
-      {/* Sidebar */}
-      <aside className={clsx(
-        "fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 flex flex-col transition-transform duration-300 ease-in-out z-50",
-        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      )}>
+      {/* Sidebar (Desktop Only) */}
+      <aside className="hidden lg:flex inset-y-0 left-0 w-64 bg-slate-900 flex-col transition-transform duration-300 ease-in-out z-50">
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800 shrink-0">
           <h1 className="text-white font-bold text-lg">Área do Freelancer</h1>
-          <button onClick={closeMenu} className="lg:hidden text-slate-400 hover:text-white">
-            <X className="w-6 h-6" />
-          </button>
         </div>
         
         <div className="flex-1 py-6 flex flex-col gap-1 px-3 overflow-y-auto">
@@ -46,7 +33,6 @@ export default function InstrumentadorLayout() {
               key={item.to}
               to={item.to}
               end={item.end}
-              onClick={closeMenu}
               className={({ isActive }) => clsx(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 isActive 
@@ -84,12 +70,9 @@ export default function InstrumentadorLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0 z-10 relative">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0 z-10 relative lg:hidden">
           <div className="flex items-center gap-4">
-            <button onClick={toggleMenu} className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-md">
-              <Menu className="w-6 h-6" />
-            </button>
-            <h2 className="text-lg font-semibold text-slate-800 hidden sm:block">Painel do Instrumentador</h2>
+            <h2 className="text-lg font-semibold text-slate-800">Painel do Instrumentador</h2>
           </div>
         </header>
 
@@ -98,6 +81,24 @@ export default function InstrumentadorLayout() {
           <Outlet />
         </div>
       </main>
+
+      {/* Bottom Navigation (Mobile Only) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center justify-around px-2 pb-safe pt-1 z-50 h-[70px]">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) => clsx(
+              "flex flex-col items-center justify-center w-full h-full py-1",
+              isActive ? "text-cyan-600" : "text-slate-500 hover:text-slate-900"
+            )}
+          >
+            <item.icon className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-medium leading-none truncate w-full text-center">{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }

@@ -44,7 +44,7 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
   return (
     <div 
       ref={ref} 
-      className="w-[700px] h-[1280px] relative flex items-center justify-center p-6 shrink-0 mx-auto" 
+      className="w-[700px] h-[1180px] relative flex items-center justify-center p-6 shrink-0 mx-auto" 
       style={{ fontFamily: 'Montserrat, Inter, sans-serif', boxSizing: 'border-box', backgroundColor: '#11223F' }}
     >
       {/* Outer Card with curved white background */}

@@ -273,9 +273,23 @@ Valor do Free: ${selectedDemanda.valorFreelancer || 'A combinar'}
                     <p className="text-emerald-600 font-bold text-sm mt-1">Valor do Plantão: {selectedDemanda.valorFreelancer}</p>
                   )}
                   {selectedDemanda.status === 'cancelamento_solicitado' && (
-                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-                      <strong>Atenção:</strong> O instrumentador solicitou cancelamento.<br/>
-                      <em>Motivo:</em> {selectedDemanda.motivoCancelamento}
+                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex flex-col gap-2">
+                      <div>
+                        <strong>Atenção:</strong> O instrumentador solicitou cancelamento.<br/>
+                        <em>Motivo:</em> {selectedDemanda.motivoCancelamento}
+                      </div>
+                      <div className="flex gap-2 mt-1">
+                        <button 
+                          onClick={() => {
+                            if(window.confirm('Tem certeza que deseja aceitar o cancelamento? A demanda voltará para a fila de alocação.')) {
+                              updateDemanda(selectedDemanda.id, { status: 'pendente', instrumentadorId: null, motivoCancelamento: '' });
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-amber-600 text-white font-bold rounded shadow-sm text-xs hover:bg-amber-700"
+                        >
+                          Aceitar Cancelamento (Reabrir Vaga)
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

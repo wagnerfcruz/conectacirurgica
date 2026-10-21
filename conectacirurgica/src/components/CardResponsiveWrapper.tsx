@@ -6,7 +6,7 @@ interface Props {
   originalHeight?: number;
 }
 
-export default function CardResponsiveWrapper({ children, originalWidth = 700, originalHeight = 1280 }: Props) {
+export default function CardResponsiveWrapper({ children, originalWidth = 700, originalHeight = 1180 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5); // Default start scale
 
