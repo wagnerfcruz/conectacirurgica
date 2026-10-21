@@ -63,8 +63,8 @@ export default function Confirmados() {
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         backgroundColor: '#11223F',
-        windowWidth: 700,
-        windowHeight: 1280
+        useCORS: true,
+        allowTaint: true
       });
       
       const image = canvas.toDataURL("image/png");
@@ -167,7 +167,7 @@ export default function Confirmados() {
             </div>
 
             {/* Hidden card for Perfect Export */}
-            <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none' }}>
+            <div style={{ position: 'fixed', left: '200vw', top: 0, pointerEvents: 'none', zIndex: -1 }}>
               <CartaoAcionamento 
                 ref={cardRef} 
                 demanda={selectedCirurgia} 

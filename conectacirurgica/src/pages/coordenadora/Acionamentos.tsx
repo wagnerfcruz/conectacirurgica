@@ -151,7 +151,7 @@ export default function Acionamentos() {
   const handleDownloadPNG = async () => {
     if (!cardRef.current) return;
     try {
-      const canvas = await html2canvas(cardRef.current, { scale: 2 });
+      const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true, allowTaint: true });
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = `Acionamento_${selectedDemanda?.mc || 'Sem_MC'}.png`;
