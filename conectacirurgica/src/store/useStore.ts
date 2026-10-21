@@ -201,7 +201,15 @@ export const useStore = create<AppState>()(
 
       responderConvite: (conviteId, resposta) => set((state) => {
         const convite = state.convites.find(c => c.id === conviteId);
-        if (!convite) return state;
+        if (!convite || convite.status !== 'aguardando') return state;
+        
+        const demanda = state.demandas.find(d => d.id === convite.demandaId);
+        if (resposta === 'aceito' && demanda && demanda.instrumentadorId) {
+            // Se já tem alguém alocado (outra pessoa aceitou simultaneamente), forçamos recusar este convite
+            return {
+                convites: state.convites.map(c => c.id === conviteId ? { ...c, status: 'recusado' } : c)
+            };
+        }
 
         const updatedConvites = state.convites.map(c => c.id === conviteId ? { ...c, status: resposta } : c);
         

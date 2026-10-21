@@ -90,7 +90,7 @@ export default function Documentos() {
           <thead className="bg-slate-50">
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Profissional</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Procedimento</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Demanda / MC</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tipo Documento</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
               <th scope="col" className="relative px-6 py-3"><span className="sr-only">Ações</span></th>
@@ -107,11 +107,12 @@ export default function Documentos() {
             )}
             {relatoriosCompletos.map((rel) => (
               <tr key={rel.id} className="hover:bg-slate-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{rel.instrumentador?.nome}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{rel.instrumentador?.nome || 'Não alocado'}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-slate-900">{rel.demanda?.procedimento}</div>
+                  <div className="text-sm font-bold text-slate-900">{rel.demanda?.mc ? 'MC: ' + rel.demanda.mc : (rel.demanda?.procedimento || 'Sem referência')}</div>
+                  <div className="text-xs text-slate-600">{rel.demanda?.hospital}</div>
                   <div className="text-xs text-slate-500">
-                    {rel.demanda?.data ? format(parseISO(rel.demanda.data), 'dd/MM/yyyy') : ''}
+                    {rel.demanda?.data ? format(parseISO(rel.demanda.data), 'dd/MM/yyyy') : ''} {rel.dataSolicitacao ? ` (Solicitado em ${format(parseISO(rel.dataSolicitacao), 'dd/MM/yyyy')})` : ''}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{rel.tipo}</td>

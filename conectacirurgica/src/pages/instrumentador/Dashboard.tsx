@@ -175,7 +175,7 @@ export default function DashboardInstrumentador() {
       {convitesPendentes.length > 0 && (
         <div>
           <h2 className="text-lg font-bold text-slate-900 mb-3 flex items-center justify-between">
-            Novos Convites
+            Meus convites
             <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{convitesPendentes.length} pendentes</span>
           </h2>
           <div className="space-y-3">
