@@ -353,7 +353,7 @@ export default function MapaCirurgico() {
             <div className="text-center space-y-6">
               <input 
                 type="file" 
-                accept="*"
+                accept=".csv, .xls, .xlsx, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 className="hidden" 
                 ref={fileInputRef}
                 onChange={handleFileUpload}
