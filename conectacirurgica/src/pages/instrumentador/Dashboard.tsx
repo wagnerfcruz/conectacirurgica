@@ -1,12 +1,15 @@
-import { Calendar as CalendarIcon, MapPin, Clock, AlertTriangle, X, FileText } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Clock, AlertTriangle, X, FileText, Check, Download } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { format, parseISO } from 'date-fns';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import CartaoAcionamento from '../../components/CartaoAcionamento';
 
 export default function DashboardInstrumentador() {
   const currentUserId = 1; 
   
-  const { demandas, convites, relatorios, responderConvite, solicitarCancelamento, updateRelatorio } = useStore();
+  const { demandas, instrumentadores, convites, relatorios, responderConvite, solicitarCancelamento, updateRelatorio } = useStore();
+  const currentInstrumentador = instrumentadores.find(i => i.id === currentUserId);
 
   const convitesPendentes = convites
     .filter(c => c.instrumentadorId === currentUserId && c.status === 'aguardando')
@@ -31,6 +34,10 @@ export default function DashboardInstrumentador() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [selectedRelatorioId, setSelectedRelatorioId] = useState<number | null>(null);
   const [fileName, setFileName] = useState('');
+
+  const [cartaoModalOpen, setCartaoModalOpen] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -69,6 +76,35 @@ export default function DashboardInstrumentador() {
     if (selectedRelatorioId && fileName) {
       updateRelatorio(selectedRelatorioId, 'recebido');
       setUploadModalOpen(false);
+    }
+  };
+
+  const handleOpenCartao = (id: number) => {
+    setSelectedCirurgiaId(id);
+    setCartaoModalOpen(true);
+  };
+
+  const handleDownloadImage = async () => {
+    if (!cardRef.current) return;
+    
+    try {
+      const cirurgia = proximasCirurgias.find(c => c.id === selectedCirurgiaId);
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        backgroundColor: '#0f172a'
+      });
+      
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `Cartao_${cirurgia?.procedimento.replace(/\s+/g, '_')}_${cirurgia?.data}.png`;
+      link.click();
+      
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2000);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      alert('Houve um erro ao gerar a imagem.');
     }
   };
 
@@ -227,7 +263,13 @@ export default function DashboardInstrumentador() {
                     <AlertTriangle className="w-4 h-4" /> Cancelamento Solicitado
                   </div>
                 ) : (
-                  <div className="flex justify-end pt-2 border-t border-slate-50">
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                    <button 
+                      onClick={() => handleOpenCartao(d.id)}
+                      className="text-xs font-bold text-primary-600 hover:text-primary-800 hover:underline flex items-center gap-1"
+                    >
+                      <FileText className="w-3 h-3" /> Ver Cartão Oficial
+                    </button>
                     <button 
                       onClick={() => handleOpenCancel(d.id)}
                       className="text-xs font-medium text-red-500 hover:text-red-700 hover:underline"
@@ -312,6 +354,43 @@ export default function DashboardInstrumentador() {
                 className="px-4 py-2 bg-primary-600 text-white rounded text-sm font-bold hover:bg-primary-700 disabled:opacity-50"
               >
                 Enviar (Simulação)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal do Cartão */}
+      {cartaoModalOpen && selectedCirurgiaId && currentInstrumentador && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-[480px] overflow-hidden flex flex-col my-auto max-h-[90vh]">
+            <div className="flex justify-between items-center p-4 border-b border-slate-100 shrink-0">
+              <h2 className="text-lg font-bold text-slate-900">Cartão de Acionamento</h2>
+              <button onClick={() => setCartaoModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto flex-1 bg-slate-100 flex justify-center">
+              <div className="w-full max-w-[450px] overflow-hidden rounded-xl shadow-xl">
+                <CartaoAcionamento 
+                  ref={cardRef} 
+                  demanda={proximasCirurgias.find(c => c.id === selectedCirurgiaId)!} 
+                  instrumentador={currentInstrumentador} 
+                />
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-100 bg-white flex justify-end gap-2 shrink-0">
+              <button onClick={() => setCartaoModalOpen(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg">
+                Fechar
+              </button>
+              <button 
+                onClick={handleDownloadImage} 
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-bold hover:bg-primary-700 flex items-center gap-2"
+              >
+                {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+                {downloadSuccess ? 'Salvo!' : 'Baixar Cartão'}
               </button>
             </div>
           </div>

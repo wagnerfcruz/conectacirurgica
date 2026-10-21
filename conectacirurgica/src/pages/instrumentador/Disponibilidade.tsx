@@ -1,219 +1,413 @@
-import { useState } from 'react';
-import { format, parseISO, addDays } from 'date-fns';
-import { Check, X, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { format, parseISO, addDays, eachDayOfInterval, getDay, isBefore, startOfDay, isValid } from 'date-fns';
+import { Check, Calendar as CalendarIcon, Trash2, Clock, X, RefreshCw, AlertCircle } from 'lucide-react';
 import clsx from 'clsx';
 import { useStore } from '../../store/useStore';
+
+const DIAS_SEMANA = [
+  { id: 0, label: 'Dom', full: 'Domingo' },
+  { id: 1, label: 'Seg', full: 'Segunda-feira' },
+  { id: 2, label: 'Ter', full: 'Terça-feira' },
+  { id: 3, label: 'Qua', full: 'Quarta-feira' },
+  { id: 4, label: 'Qui', full: 'Quinta-feira' },
+  { id: 5, label: 'Sex', full: 'Sexta-feira' },
+  { id: 6, label: 'Sáb', full: 'Sábado' },
+];
 
 export default function Disponibilidade() {
   const currentUserId = 1;
   const { instrumentadores, updateDisponibilidadeRange } = useStore();
   const currentUser = instrumentadores.find(i => i.id === currentUserId);
 
-  const [tipoData, setTipoData] = useState<'hoje' | 'amanha' | 'outra'>('hoje');
-  const [dataOutra, setDataOutra] = useState(format(new Date(), 'yyyy-MM-dd'));
-
-  const [statusDisp, setStatusDisp] = useState<'livre' | 'indisponivel' | null>(null);
+  const [modo, setModo] = useState<'A' | 'B'>('A');
+  const [atalhoA, setAtalhoA] = useState<'hoje' | 'amanha' | '7dias' | 'datas'>('hoje');
   
-  const [periodo, setPeriodo] = useState<'manha' | 'tarde' | 'noite' | 'integral' | null>(null);
+  const hojeStr = format(new Date(), 'yyyy-MM-dd');
+  const [dataInicio, setDataInicio] = useState(() => format(new Date(), 'yyyy-MM-dd'));
+  const [dataFim, setDataFim] = useState(() => format(new Date(), 'yyyy-MM-dd'));
+  
+  const [diasSelecionados, setDiasSelecionados] = useState<number[]>([0,1,2,3,4,5,6]);
+  const [periodos, setPeriodos] = useState<string[]>([]);
 
+  const [step, setStep] = useState<'form' | 'revisao'>('form');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const getDataSelecionada = () => {
-    const hoje = new Date();
-    if (tipoData === 'hoje') return format(hoje, 'yyyy-MM-dd');
-    if (tipoData === 'amanha') return format(addDays(hoje, 1), 'yyyy-MM-dd');
-    return dataOutra;
+  const today = startOfDay(new Date());
+
+  // Derive dates based on mode
+  const derivedDates = useMemo(() => {
+    let start = hojeStr;
+    let end = hojeStr;
+    let activeDays = diasSelecionados;
+
+    if (modo === 'A') {
+      if (atalhoA === 'hoje') {
+        start = hojeStr;
+        end = hojeStr;
+        activeDays = [getDay(new Date())];
+      } else if (atalhoA === 'amanha') {
+        const amh = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+        start = amh;
+        end = amh;
+        activeDays = [getDay(addDays(new Date(), 1))];
+      } else if (atalhoA === '7dias') {
+        start = hojeStr;
+        end = format(addDays(new Date(), 6), 'yyyy-MM-dd');
+      } else {
+        start = dataInicio;
+        end = dataFim;
+      }
+    } else {
+      start = dataInicio;
+      end = dataFim;
+    }
+
+    return { start, end, activeDays };
+  }, [modo, atalhoA, dataInicio, dataFim, diasSelecionados, hojeStr]);
+
+  const datesToApply = useMemo(() => {
+    const s = parseISO(derivedDates.start);
+    const e = parseISO(derivedDates.end);
+    
+    if (!isValid(s) || !isValid(e) || isBefore(e, s)) return [];
+    
+    const allDays = eachDayOfInterval({ start: s, end: e });
+    return allDays
+      .filter(d => derivedDates.activeDays.includes(getDay(d)))
+      .map(d => format(d, 'yyyy-MM-dd'));
+  }, [derivedDates]);
+
+  const handleReview = () => {
+    setErrorMsg('');
+    
+    if (modo === 'B' && diasSelecionados.length === 0) {
+      setErrorMsg('Selecione pelo menos um dia da semana.');
+      return;
+    }
+
+    if ((modo === 'B' || (modo === 'A' && atalhoA === 'datas')) && (!dataInicio || !dataFim)) {
+      setErrorMsg('Informe a data inicial e final.');
+      return;
+    }
+
+    const s = parseISO(derivedDates.start);
+    const e = parseISO(derivedDates.end);
+    if (isValid(s) && isValid(e) && isBefore(e, s)) {
+      setErrorMsg('A data final não pode ser anterior à data inicial.');
+      return;
+    }
+
+    if (datesToApply.length === 0) {
+      setErrorMsg('O intervalo selecionado não contém nenhum dia válido com a regra atual.');
+      return;
+    }
+
+    if (periodos.length === 0) {
+      setErrorMsg('Selecione pelo menos um período (Manhã, Tarde, Noite ou Dia Inteiro).');
+      return;
+    }
+
+    setStep('revisao');
   };
 
   const handleSave = () => {
-    setErrorMsg('');
-    const dataSelecionada = getDataSelecionada();
-    
-    if (!statusDisp) {
-      setErrorMsg('Selecione como está sua disponibilidade.');
-      return;
+    let finalPeriods = [...periodos];
+    if (finalPeriods.includes('integral')) {
+      finalPeriods = ['manha', 'tarde', 'noite', 'integral'];
     }
 
-    if (statusDisp === 'livre' && !periodo) {
-      setErrorMsg('Selecione o período em que pode atender.');
-      return;
-    }
-
-    let periodosFormatados: string[] = [];
-    
-    if (statusDisp === 'indisponivel') {
-      periodosFormatados = ['indisponivel'];
-    } else {
-      if (periodo === 'integral') periodosFormatados = ['integral', 'manha', 'tarde', 'noite'];
-      else if (periodo) periodosFormatados = [periodo];
-    }
-
-    updateDisponibilidadeRange(currentUserId, [dataSelecionada], periodosFormatados);
+    updateDisponibilidadeRange(currentUserId, datesToApply, finalPeriods);
     setSaveSuccess(true);
+    setStep('form');
+    setPeriodos([]);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
+  const toggleDia = (id: number) => {
+    setDiasSelecionados(prev => 
+      prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id].sort()
+    );
+  };
+
+  const setDiasUteis = () => setDiasSelecionados([1,2,3,4,5]);
+    const setTodosDias = () => setDiasSelecionados([0,1,2,3,4,5,6]);
+
+  const togglePeriodo = (p: string) => {
+    setPeriodos(prev => {
+      if (p === 'integral') {
+        return prev.includes('integral') ? [] : ['integral'];
+      }
+      const newP = prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p];
+      return newP.filter(x => x !== 'integral'); // remove integral if specific period selected
+    });
+  };
+
   const dispMap = currentUser?.disponibilidade || {};
-  const datasRegistradas = Object.keys(dispMap).sort();
+  const datasRegistradas = Object.keys(dispMap).sort().filter(d => !isBefore(parseISO(d), today));
 
   return (
     <div className="p-4 space-y-6 max-w-lg mx-auto pb-24">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 mb-1">Registrar minha disponibilidade</h1>
-        <p className="text-sm text-slate-500">Informe quando você pode ser acionado.</p>
+        <h1 className="text-2xl font-bold text-slate-900 mb-1">Informar disponibilidade</h1>
+        <p className="text-sm text-slate-500">Defina quando você pode realizar atendimentos.</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-5 space-y-6">
-          
-          {errorMsg && (
-            <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm font-medium border border-red-200">
-              {errorMsg}
-            </div>
-          )}
+      {step === 'form' && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-5 space-y-6">
+            
+            {errorMsg && (
+              <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm font-medium border border-red-200 flex gap-2 items-start">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
 
-          {/* Qual a data? */}
-          <div className="space-y-3">
-            <label className="block text-sm font-bold text-slate-800">Qual a data?</label>
-            <div className="flex flex-col gap-2">
-              <button 
-                onClick={() => setTipoData('hoje')}
-                className={clsx("p-3 rounded-xl border flex items-center gap-3 transition-all", tipoData === 'hoje' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
-              >
-                <CalendarIcon className="w-5 h-5" /> Hoje
-              </button>
-              <button 
-                onClick={() => setTipoData('amanha')}
-                className={clsx("p-3 rounded-xl border flex items-center gap-3 transition-all", tipoData === 'amanha' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
-              >
-                <CalendarIcon className="w-5 h-5" /> Amanhã
-              </button>
-              <div className={clsx("rounded-xl border flex flex-col transition-all overflow-hidden", tipoData === 'outra' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500" : "border-slate-200 text-slate-600 hover:bg-slate-50")}>
+            {/* Como informar */}
+            <div className="space-y-3">
+              <label className="block text-sm font-bold text-slate-800">Como deseja informar?</label>
+              <div className="grid grid-cols-2 gap-3">
                 <button 
-                  onClick={() => setTipoData('outra')}
-                  className="p-3 flex items-center gap-3 w-full text-left"
+                  onClick={() => { setModo('A'); setAtalhoA('hoje'); setTodosDias(); }}
+                  className={clsx("p-3 rounded-xl border text-sm font-medium flex flex-col items-center gap-2 transition-all", modo === 'A' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
                 >
-                  <CalendarIcon className="w-5 h-5" /> Outra data
+                  <CalendarIcon className="w-5 h-5" />
+                  Datas específicas
                 </button>
-                {tipoData === 'outra' && (
-                  <div className="px-3 pb-3">
-                    <input 
-                      type="date" 
-                      value={dataOutra}
-                      onChange={e => setDataOutra(e.target.value)}
-                      className="w-full border border-primary-200 rounded-md p-2 text-sm focus:ring-primary-500 bg-white"
-                    />
+                <button 
+                  onClick={() => { setModo('B'); setDataInicio(hojeStr); setDataFim(format(addDays(new Date(), 30), 'yyyy-MM-dd')); }}
+                  className={clsx("p-3 rounded-xl border text-sm font-medium flex flex-col items-center gap-2 transition-all", modo === 'B' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+                >
+                  <RefreshCw className="w-5 h-5" />
+                  Repetir semanalmente
+                </button>
+              </div>
+            </div>
+
+            {modo === 'A' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-slate-800">Selecione o período</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['hoje', 'amanha', '7dias', 'datas'].map((op) => (
+                      <button 
+                        key={op}
+                        onClick={() => { setAtalhoA(op as any); if(op !== 'datas') setTodosDias(); }}
+                        className={clsx("p-2.5 rounded-lg border text-sm font-medium transition-all text-center", atalhoA === op ? "border-primary-500 bg-primary-50 text-primary-900" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+                      >
+                        {op === 'hoje' ? 'Hoje' : op === 'amanha' ? 'Amanhã' : op === '7dias' ? 'Próximos 7 dias' : 'Escolher datas'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {atalhoA === 'datas' && (
+                  <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">Data Inicial</label>
+                      <input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} className="w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-primary-500 bg-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">Data Final</label>
+                      <input type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} className="w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-primary-500 bg-white" />
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Como está sua disponibilidade? */}
-          <div className="space-y-3 pt-2">
-            <label className="block text-sm font-bold text-slate-800">Como está sua disponibilidade?</label>
-            <div className="flex flex-col gap-2">
-              <button 
-                onClick={() => setStatusDisp('livre')}
-                className={clsx("p-3 rounded-xl border flex items-center gap-3 transition-all", statusDisp === 'livre' ? "border-emerald-500 bg-emerald-50 text-emerald-900 ring-1 ring-emerald-500" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
-              >
-                <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center text-white", statusDisp === 'livre' ? "bg-emerald-500" : "bg-emerald-200")}>
-                  <Check className="w-4 h-4" />
-                </div>
-                <div className="text-left">
-                  <div className="font-bold text-sm">Estou livre</div>
-                  <div className="text-xs opacity-80">Posso assumir uma cirurgia.</div>
-                </div>
-              </button>
-              <button 
-                onClick={() => setStatusDisp('indisponivel')}
-                className={clsx("p-3 rounded-xl border flex items-center gap-3 transition-all", statusDisp === 'indisponivel' ? "border-red-500 bg-red-50 text-red-900 ring-1 ring-red-500" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
-              >
-                <div className={clsx("w-6 h-6 rounded-full flex items-center justify-center text-white", statusDisp === 'indisponivel' ? "bg-red-500" : "bg-red-200")}>
-                  <X className="w-4 h-4" />
-                </div>
-                <div className="text-left">
-                  <div className="font-bold text-sm">Indisponível</div>
-                  <div className="text-xs opacity-80">Não posso assumir freelance nesta data.</div>
-                </div>
-              </button>
-            </div>
-          </div>
+            {modo === 'B' && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                 <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">Vigência Inicial</label>
+                      <input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} className="w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-primary-500 bg-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">Vigência Final</label>
+                      <input type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} className="w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-primary-500 bg-white" />
+                    </div>
+                  </div>
+              </div>
+            )}
 
-          {/* Período */}
-          {statusDisp === 'livre' && (
-            <div className="space-y-3 pt-2 animate-in fade-in slide-in-from-bottom-2">
-              <label className="block text-sm font-bold text-slate-800">Período em que pode atender</label>
+            {((modo === 'A' && (atalhoA === '7dias' || atalhoA === 'datas')) || modo === 'B') && (
+              <div className="space-y-3 pt-2 animate-in fade-in">
+                <div className="flex justify-between items-center">
+                  <label className="block text-sm font-bold text-slate-800">Dias da semana</label>
+                  <div className="text-xs flex gap-2">
+                    <button onClick={setDiasUteis} className="text-primary-600 font-medium hover:underline">Dias úteis</button>
+                    <button onClick={setTodosDias} className="text-primary-600 font-medium hover:underline">Todos</button>
+                  </div>
+                </div>
+                <div className="flex justify-between gap-1">
+                  {DIAS_SEMANA.map(dia => (
+                    <button
+                      key={dia.id}
+                      onClick={() => toggleDia(dia.id)}
+                      className={clsx(
+                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all shrink-0",
+                        diasSelecionados.includes(dia.id)
+                          ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      )}
+                    >
+                      {dia.label[0]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Período */}
+            <div className="space-y-3 pt-2">
+              <label className="block text-sm font-bold text-slate-800">Horários disponíveis</label>
               <div className="grid grid-cols-2 gap-2">
                 <button 
-                  onClick={() => setPeriodo('manha')}
-                  className={clsx("p-3 rounded-xl border flex flex-col items-center justify-center transition-all text-center", periodo === 'manha' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 font-bold" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+                  onClick={() => togglePeriodo('manha')}
+                  className={clsx("p-3 rounded-xl border flex items-center justify-center gap-2 transition-all", periodos.includes('manha') ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 font-bold" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
                 >
-                  <span className="text-sm">Somente Manhã</span>
+                  <Clock className="w-4 h-4" /> Manhã
                 </button>
                 <button 
-                  onClick={() => setPeriodo('tarde')}
-                  className={clsx("p-3 rounded-xl border flex flex-col items-center justify-center transition-all text-center", periodo === 'tarde' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 font-bold" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+                  onClick={() => togglePeriodo('tarde')}
+                  className={clsx("p-3 rounded-xl border flex items-center justify-center gap-2 transition-all", periodos.includes('tarde') ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 font-bold" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
                 >
-                  <span className="text-sm">Somente Tarde</span>
+                  <Clock className="w-4 h-4" /> Tarde
                 </button>
                 <button 
-                  onClick={() => setPeriodo('integral')}
-                  className={clsx("p-3 rounded-xl border flex flex-col items-center justify-center transition-all text-center col-span-2", periodo === 'integral' ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 font-bold" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+                  onClick={() => togglePeriodo('noite')}
+                  className={clsx("p-3 rounded-xl border flex items-center justify-center gap-2 transition-all", periodos.includes('noite') ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 font-bold" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
                 >
-                  <span className="text-sm">Manhã e Tarde (Qualquer horário)</span>
+                  <Clock className="w-4 h-4" /> Noite
+                </button>
+                <button 
+                  onClick={() => togglePeriodo('integral')}
+                  className={clsx("p-3 rounded-xl border flex items-center justify-center gap-2 transition-all", periodos.includes('integral') ? "border-primary-500 bg-primary-50 text-primary-900 ring-1 ring-primary-500 font-bold" : "border-slate-200 text-slate-600 hover:bg-slate-50")}
+                >
+                  <Clock className="w-4 h-4" /> Dia Inteiro
                 </button>
               </div>
             </div>
-          )}
 
-          <div className="pt-4">
-            <button onClick={handleSave} className="w-full bg-primary-600 text-white py-4 rounded-xl font-bold text-base hover:bg-primary-700 shadow-md shadow-primary-500/20">
-              Confirmar Disponibilidade
-            </button>
-          </div>
-
-          {saveSuccess && (
-            <div className="bg-emerald-50 text-emerald-800 text-sm font-bold p-3 rounded-lg flex justify-center items-center gap-2 border border-emerald-200 mt-2">
-              <Check className="w-5 h-5 text-emerald-500" /> Disponibilidade registrada com sucesso!
+            <div className="pt-4">
+              <button onClick={handleReview} className="w-full bg-primary-600 text-white py-4 rounded-xl font-bold text-base hover:bg-primary-700 shadow-md shadow-primary-500/20 flex items-center justify-center gap-2">
+                Revisar disponibilidade
+              </button>
             </div>
-          )}
-        </div>
-      </div>
 
+            {saveSuccess && (
+              <div className="bg-emerald-50 text-emerald-800 text-sm font-bold p-3 rounded-lg flex justify-center items-center gap-2 border border-emerald-200 mt-2">
+                <Check className="w-5 h-5 text-emerald-500" /> Disponibilidade salva!
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {step === 'revisao' && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-right-4">
+          <div className="p-5 space-y-6">
+            <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3">Resumo da Disponibilidade</h2>
+            
+            <div className="space-y-4 text-sm">
+              <div className="flex justify-between items-start py-2 border-b border-slate-50">
+                <span className="text-slate-500">Período</span>
+                <span className="font-bold text-slate-800 text-right">
+                  {format(parseISO(derivedDates.start), 'dd/MM/yyyy')} 
+                  {derivedDates.start !== derivedDates.end && ` até ${format(parseISO(derivedDates.end), 'dd/MM/yyyy')}`}
+                </span>
+              </div>
+              
+              <div className="flex justify-between items-start py-2 border-b border-slate-50">
+                <span className="text-slate-500">Dias</span>
+                <span className="font-bold text-slate-800 text-right">
+                  {modo === 'A' && (atalhoA === 'hoje' || atalhoA === 'amanha') 
+                    ? '1 dia' 
+                    : derivedDates.activeDays.length === 7 
+                      ? 'Todos os dias' 
+                      : DIAS_SEMANA.filter(d => derivedDates.activeDays.includes(d.id)).map(d => d.label).join(', ')}
+                  <div className="text-xs text-slate-400 font-normal mt-0.5">({datesToApply.length} datas afetadas)</div>
+                </span>
+              </div>
+
+              <div className="flex justify-between items-start py-2 border-b border-slate-50">
+                <span className="text-slate-500">Horários</span>
+                <span className="font-bold text-primary-700 capitalize text-right">
+                  {periodos.includes('integral') ? 'Dia Inteiro' : periodos.join(', ')}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button 
+                onClick={() => setStep('form')}
+                className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+              >
+                Voltar
+              </button>
+              <button 
+                onClick={handleSave}
+                className="flex-[2] bg-emerald-600 text-white px-4 py-3 rounded-xl font-bold text-base hover:bg-emerald-700 shadow-md shadow-emerald-500/20"
+              >
+                Salvar disponibilidade
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Registros Recentes */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mt-6">
-        <h2 className="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Registros Recentes</h2>
-        <div className="space-y-2 max-h-60 overflow-y-auto">
+        <h2 className="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Minha Agenda</h2>
+        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
           {datasRegistradas.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">Nenhuma disponibilidade informada.</p>
+            <p className="text-sm text-slate-500 text-center py-4">Nenhuma disponibilidade futura.</p>
           ) : (
             datasRegistradas.map(date => {
-              const periodos = dispMap[date];
+              const p = dispMap[date];
+              const isIndisponivel = p.includes('indisponivel');
+              const isIntegral = p.includes('integral');
+              
               return (
-                <div key={date} className="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
+                <div key={date} className={clsx("flex justify-between items-center p-3 border rounded-xl", isIndisponivel ? "border-red-100 bg-red-50" : "border-slate-100 bg-slate-50")}>
                   <div>
                     <div className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4 text-primary-500" />
+                      <CalendarIcon className={clsx("w-4 h-4", isIndisponivel ? "text-red-500" : "text-primary-500")} />
                       {format(parseISO(date), "dd/MM/yyyy")}
+                      <span className="text-xs font-normal text-slate-500">
+                        {DIAS_SEMANA.find(d => d.id === getDay(parseISO(date)))?.label}
+                      </span>
                     </div>
-                    <div className="text-xs text-slate-500 mt-1 capitalize">
-                      {periodos.includes('indisponivel') ? (
+                    <div className="text-xs mt-1 capitalize">
+                      {isIndisponivel ? (
                         <span className="text-red-600 font-bold">Indisponível</span>
-                      ) : periodos.includes('integral') ? (
-                        <span className="text-emerald-600 font-bold">Qualquer horário</span>
+                      ) : isIntegral ? (
+                        <span className="text-emerald-600 font-bold">Dia Inteiro</span>
                       ) : (
-                        periodos.join(', ')
+                        <span className="text-slate-600">{p.join(', ')}</span>
                       )}
                     </div>
                   </div>
-                  <button 
-                    onClick={() => updateDisponibilidadeRange(currentUserId, [date], ['indisponivel'])}
-                    title="Marcar como indisponível"
-                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex gap-1">
+                    {!isIndisponivel && (
+                      <button 
+                        onClick={() => updateDisponibilidadeRange(currentUserId, [date], ['indisponivel'])}
+                        title="Marcar como indisponível"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => updateDisponibilidadeRange(currentUserId, [date], [])}
+                      title="Remover registro"
+                      className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               );
             })
