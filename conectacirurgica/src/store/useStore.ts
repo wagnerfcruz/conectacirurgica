@@ -90,6 +90,9 @@ export interface Relatorio {
 export interface EmpresaConfig {
   logoUrl?: string;
   nome: string;
+  tagline?: string;
+  headerTitleLine1?: string;
+  headerTitleLine2?: string;
 }
 
 interface AppState {
@@ -101,6 +104,7 @@ interface AppState {
   
   // Actions
   updateEmpresaLogo: (url: string) => void;
+  updateEmpresaConfig: (config: Partial<EmpresaConfig>) => void;
   updateDisponibilidade: (id: number, date: string, periodos: string[]) => void;
   updateDisponibilidadeRange: (id: number, dates: string[], periodos: string[]) => void;
   enviarConvite: (demandaId: number, instrumentadorId: number) => void;
@@ -159,10 +163,19 @@ export const useStore = create<AppState>()(
       demandas: initialDemandas,
       convites: initialConvites,
       relatorios: initialRelatorios,
-      empresaConfig: { nome: 'Meditec' },
+      empresaConfig: { 
+        nome: 'CONECTA', 
+        tagline: 'CIRÚRGICA',
+        headerTitleLine1: 'AGENDAMENTO',
+        headerTitleLine2: 'FREELANCE'
+      },
 
       updateEmpresaLogo: (url) => set((state) => ({
         empresaConfig: { ...state.empresaConfig, logoUrl: url }
+      })),
+
+      updateEmpresaConfig: (config) => set((state) => ({
+        empresaConfig: { ...state.empresaConfig, ...config }
       })),
 
       updateDisponibilidade: (id, date, periodos) => set((state) => ({

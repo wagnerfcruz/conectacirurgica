@@ -23,6 +23,7 @@ function App() {
     <Router basename="/conectacirurgica">
       <Routes>
         <Route path="/" element={<Login />} />
+
         
         {/* Instrumentador Routes */}
         <Route path="/instrumentador" element={<InstrumentadorLayout />}>
