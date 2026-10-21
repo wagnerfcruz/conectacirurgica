@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { format, parseISO, addDays, eachDayOfInterval, getDay, isBefore, startOfDay, isValid } from 'date-fns';
-import { Check, Calendar as CalendarIcon, Trash2, Clock, X, RefreshCw, AlertCircle } from 'lucide-react';
+import { Check, Calendar as CalendarIcon, Trash2, Clock, X, RefreshCw, AlertCircle, ChevronUp, ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
 import { useStore } from '../../store/useStore';
 
@@ -30,6 +30,7 @@ export default function Disponibilidade() {
   const [periodos, setPeriodos] = useState<string[]>([]);
 
   const [step, setStep] = useState<'form' | 'revisao'>('form');
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -147,7 +148,7 @@ export default function Disponibilidade() {
   const datasRegistradas = Object.keys(dispMap).sort().filter(d => !isBefore(parseISO(d), today));
 
   return (
-    <div className="p-4 space-y-6 max-w-lg mx-auto pb-24">
+    <div className="p-4 space-y-6 max-w-lg mx-auto pb-8">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Informar disponibilidade</h1>
         <p className="text-sm text-slate-500">Defina quando você pode realizar atendimentos.</p>
@@ -362,56 +363,78 @@ export default function Disponibilidade() {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mt-6">
         <h2 className="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Minha Agenda</h2>
         <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-          {datasRegistradas.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">Nenhuma disponibilidade futura.</p>
-          ) : (
-            datasRegistradas.map(date => {
-              const p = dispMap[date];
-              const isIndisponivel = p.includes('indisponivel');
-              const isIntegral = p.includes('integral');
-              
+          
+          {(() => {
+            if (datasRegistradas.length === 0) {
+              return <p className="text-sm text-slate-500 text-center py-4">Nenhuma disponibilidade futura.</p>;
+            }
+
+            const grupos: Record<string, string[]> = {};
+            datasRegistradas.forEach(date => {
+              const rule = [...dispMap[date]].sort().join(',');
+              if (!grupos[rule]) grupos[rule] = [];
+              grupos[rule].push(date);
+            });
+
+            return Object.entries(grupos).map(([rule, dates]) => {
+              const isIndisponivel = rule.includes('indisponivel');
+              const isIntegral = rule.includes('integral');
+              const ruleLabel = isIndisponivel ? 'Indisponível' : isIntegral ? 'Dia Inteiro' : rule.split(',').join(', ');
+              const isExpanded = expandedGroup === rule;
+
               return (
-                <div key={date} className={clsx("flex justify-between items-center p-3 border rounded-xl", isIndisponivel ? "border-red-100 bg-red-50" : "border-slate-100 bg-slate-50")}>
-                  <div>
-                    <div className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                      <CalendarIcon className={clsx("w-4 h-4", isIndisponivel ? "text-red-500" : "text-primary-500")} />
-                      {format(parseISO(date), "dd/MM/yyyy")}
-                      <span className="text-xs font-normal text-slate-500">
-                        {DIAS_SEMANA.find(d => d.id === getDay(parseISO(date)))?.label}
-                      </span>
+                <div key={rule} className="border border-slate-200 rounded-xl overflow-hidden mb-3">
+                  <div 
+                    onClick={() => setExpandedGroup(isExpanded ? null : rule)}
+                    className={clsx("p-3 flex justify-between items-center cursor-pointer transition-colors", isIndisponivel ? "bg-red-50 hover:bg-red-100" : "bg-slate-50 hover:bg-slate-100")}
+                  >
+                    <div>
+                      <div className="font-bold text-sm text-slate-800 capitalize flex items-center gap-2">
+                        {isIndisponivel ? <X className="w-4 h-4 text-red-500" /> : <Clock className="w-4 h-4 text-primary-500" />}
+                        {ruleLabel}
+                      </div>
+                      <div className="text-xs text-slate-500 mt-0.5">{dates.length} {dates.length === 1 ? 'data programada' : 'datas programadas'}</div>
                     </div>
-                    <div className="text-xs mt-1 capitalize">
-                      {isIndisponivel ? (
-                        <span className="text-red-600 font-bold">Indisponível</span>
-                      ) : isIntegral ? (
-                        <span className="text-emerald-600 font-bold">Dia Inteiro</span>
-                      ) : (
-                        <span className="text-slate-600">{p.join(', ')}</span>
-                      )}
+                    <div className="flex gap-2 items-center">
+                       {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    {!isIndisponivel && (
-                      <button 
-                        onClick={() => updateDisponibilidadeRange(currentUserId, [date], ['indisponivel'])}
-                        title="Marcar como indisponível"
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => updateDisponibilidadeRange(currentUserId, [date], [])}
-                      title="Remover registro"
-                      className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  
+                  {isExpanded && (
+                    <div className="p-2 border-t border-slate-200 bg-white grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {dates.map(date => (
+                        <div key={date} className="flex justify-between items-center p-2 bg-slate-50 rounded-lg text-sm border border-slate-100">
+                          <div>
+                            <span className="font-semibold text-slate-700">{format(parseISO(date), "dd/MM/yyyy")}</span>
+                            <span className="text-xs text-slate-500 ml-2">({DIAS_SEMANA.find(d => d.id === getDay(parseISO(date)))?.label})</span>
+                          </div>
+                          <div className="flex gap-1">
+                            {!isIndisponivel && (
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); updateDisponibilidadeRange(currentUserId, [date], ['indisponivel']); }}
+                                title="Indisponível"
+                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-100 rounded-md transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); updateDisponibilidadeRange(currentUserId, [date], []); }}
+                              title="Remover"
+                              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-md transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
-            })
-          )}
+            });
+          })()}
+
         </div>
       </div>
 

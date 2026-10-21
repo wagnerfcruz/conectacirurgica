@@ -28,7 +28,7 @@ export default function Perfil() {
   if (!currentUser) return null;
 
   return (
-    <div className="p-4 space-y-6 max-w-lg mx-auto pb-24">
+    <div className="p-4 space-y-6 max-w-lg mx-auto pb-8">
       <div className="text-center py-4">
         <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
           <User className="w-10 h-10 text-primary-600" />

@@ -19,7 +19,7 @@ export default function Historico() {
   };
 
   return (
-    <div className="p-4 space-y-4 max-w-lg mx-auto pb-24">
+    <div className="p-4 space-y-4 max-w-lg mx-auto pb-8">
       <header className="mb-6">
         <h2 className="text-xl font-bold text-slate-900">Histórico</h2>
         <p className="text-sm text-slate-500">Últimos procedimentos atendidos</p>

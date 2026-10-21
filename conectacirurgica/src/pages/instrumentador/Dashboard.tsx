@@ -109,7 +109,7 @@ export default function DashboardInstrumentador() {
   };
 
   return (
-    <div className="p-4 space-y-6 max-w-lg mx-auto pb-24">
+    <div className="p-4 space-y-6 max-w-lg mx-auto pb-8">
       {/* Ações Rápidas & Status */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-3">
         <div className="flex items-center gap-2">
