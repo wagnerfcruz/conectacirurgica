@@ -116,6 +116,7 @@ interface AppState {
   addDemandaManual: (demanda: Omit<Demanda, 'id' | 'status'>) => void;
   updateDemanda: (id: number, data: Partial<Demanda>) => void;
   deleteDemanda: (id: number) => void;
+  deleteDemandas: (ids: number[]) => void;
   cobrarDocumento: (instrumentadorId: number, demandaId: number, tipo: string) => void;
   updateRelatorio: (id: number, status: 'recebido') => void;
   resetStore: () => void;
@@ -295,9 +296,13 @@ export const useStore = create<AppState>()(
         demandas: state.demandas.map(d => d.id === id ? { ...d, ...data } : d)
       })),
 
+      deleteDemandas: (ids) => set((state) => ({
+        demandas: state.demandas.filter(d => !ids.includes(d.id))
+      })),
+
       deleteDemanda: (id) => set((state) => {
         const demanda = state.demandas.find(d => d.id === id);
-        if (demanda && (demanda.status === 'pendente' || demanda.status === 'alocando')) {
+        if (demanda) {
           return { demandas: state.demandas.filter(d => d.id !== id) };
         }
         return state;

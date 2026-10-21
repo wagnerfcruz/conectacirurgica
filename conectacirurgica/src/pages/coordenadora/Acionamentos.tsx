@@ -7,7 +7,8 @@ import { format, parseISO } from 'date-fns';
 import html2canvas from 'html2canvas';
 
 export default function Acionamentos() {
-  const { demandas, instrumentadores, enviarConvite, deleteDemanda, addDemandaManual, updateDemanda } = useStore();
+  const { demandas, instrumentadores, enviarConvite, deleteDemanda, deleteDemandas, addDemandaManual, updateDemanda } = useStore();
+  const [selectedIdsForDelete, setSelectedIdsForDelete] = useState<number[]>([]);
   const [selectedDemandaId, setSelectedDemandaId] = useState<number | null>(null);
 
   // Modal de edição / criação
@@ -126,6 +127,25 @@ export default function Acionamentos() {
     if (selectedDemandaId === id) setSelectedDemandaId(null);
   };
 
+  const handleMultiDelete = () => {
+    if (window.confirm(`Tem certeza que deseja excluir ${selectedIdsForDelete.length} acionamentos?`)) {
+      deleteDemandas(selectedIdsForDelete);
+      setSelectedIdsForDelete([]);
+      if (selectedDemandaId && selectedIdsForDelete.includes(selectedDemandaId)) {
+        setSelectedDemandaId(null);
+      }
+    }
+  };
+
+  const toggleSelectForDelete = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    if (selectedIdsForDelete.includes(id)) {
+      setSelectedIdsForDelete(prev => prev.filter(i => i !== id));
+    } else {
+      setSelectedIdsForDelete(prev => [...prev, id]);
+    }
+  };
+
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPNG = async () => {
@@ -160,6 +180,15 @@ Valor do Free: ${selectedDemanda.valorFreelancer || 'A combinar'}
     <div className="flex flex-col lg:flex-row gap-6 h-auto lg:h-[calc(100vh-8rem)]">
       {/* Lista de Demandas */}
       <div className="w-full lg:w-1/3 flex flex-col bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden min-h-[300px] lg:min-h-0">
+        <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+          <p className="text-xs text-slate-500 font-medium">Selecione para excluir</p>
+          {selectedIdsForDelete.length > 0 && (
+            <button onClick={handleMultiDelete} className="px-2 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded text-xs font-bold flex items-center gap-1">
+              <Trash2 className="w-3 h-3" />
+              Excluir ({selectedIdsForDelete.length})
+            </button>
+          )}
+        </div>
         <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
           <h2 className="font-bold text-slate-800">Demandas ({demandasAbertas.length})</h2>
           <button onClick={openNewDemanda} className="bg-primary-600 hover:bg-primary-700 text-white p-1.5 rounded" title="Adicionar Manualmente">
@@ -179,6 +208,16 @@ Valor do Free: ${selectedDemanda.valorFreelancer || 'A combinar'}
                 )}
                 onClick={() => setSelectedDemandaId(d.id)}
               >
+                <div className="pt-1">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                    checked={selectedIdsForDelete.includes(d.id)}
+                    onChange={() => {}}
+                    onClick={(e) => toggleSelectForDelete(e, d.id)}
+                  />
+                </div>
+                <div className="flex-1">
                 <div className="flex justify-between items-start mb-1">
                   <span className="font-bold text-sm text-slate-900 truncate">{d.procedimento}</span>
                 </div>
@@ -210,11 +249,12 @@ Valor do Free: ${selectedDemanda.valorFreelancer || 'A combinar'}
                 <div className="absolute inset-0 bg-white/95 z-10 flex flex-col items-center justify-center rounded-lg border border-red-200 p-2 text-center">
                   <p className="text-xs font-bold text-red-600 mb-2">Excluir rascunho?</p>
                   <div className="flex gap-2">
-                    <button onClick={() => setConfirmDelete(null)} className="px-2 py-1 text-xs bg-slate-100 rounded text-slate-600">Cancelar</button>
-                    <button onClick={() => handleDelete(d.id)} className="px-2 py-1 text-xs bg-red-600 text-white rounded">Excluir</button>
+                    <button onClick={(e) => { e.stopPropagation(); setConfirmDelete(null); }} className="px-2 py-1 text-xs bg-slate-100 rounded text-slate-600">Cancelar</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(d.id); }} className="px-2 py-1 text-xs bg-red-600 text-white rounded">Excluir</button>
                   </div>
                 </div>
               )}
+                </div>
             </div>
           ))}
         </div>
