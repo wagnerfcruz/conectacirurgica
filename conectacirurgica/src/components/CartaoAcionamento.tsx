@@ -44,26 +44,18 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
   return (
     <div 
       ref={ref} 
-      className="w-[700px] h-[1180px] relative flex items-center justify-center p-6 shrink-0 mx-auto" 
+      className="w-[700px] h-[auto] relative flex items-center justify-center p-6 shrink-0 mx-auto" 
       style={{ fontFamily: 'Montserrat, Inter, sans-serif', boxSizing: 'border-box', backgroundColor: '#11223F' }}
     >
       {/* Outer Card with curved white background */}
-      <div className="w-full h-full bg-white flex flex-col relative" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+      <div className="w-full h-[auto] bg-white flex flex-col relative" style={{ borderRadius: '24px', overflow: 'hidden' }}>
         
         {/* Curva decorativa superior esquerda (opcional/simplificada com border radius maior na div interna) */}
         
         {/* CABEÇALHO */}
         <div className="flex justify-between items-center px-8 py-5">
-          <div className="flex items-center gap-4">
-            <img src={empresaConfig.logoUrl && empresaConfig.logoUrl !== "/meditec_logo.png" ? empresaConfig.logoUrl : `${import.meta.env.BASE_URL}meditec_logo.png`.replace("//", "/")} alt="Logo" className="w-auto h-16" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-            <div className="flex flex-col">
-              <h1 className="text-[42px] font-black tracking-tighter leading-none" style={{ color: textColor }}>
-                {empresaConfig.nome || 'MEDITEC'}
-              </h1>
-              <p className="text-[12px] font-bold tracking-[0.05em] mt-1" style={{ color: '#2FA8CA' }}>
-                {empresaConfig.tagline || 'MEDICINA COM TECNOLOGIA'}
-              </p>
-            </div>
+          <div className="flex items-center">
+            <img src={empresaConfig.logoUrl && empresaConfig.logoUrl !== "/meditec_logo.png" ? empresaConfig.logoUrl : `${import.meta.env.BASE_URL}meditec_logo.png`.replace("//", "/")} alt="Logo" className="w-auto h-24 max-w-[250px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           </div>
           <div className="text-right border-l-[3px] pl-4 py-1 flex flex-col items-start" style={{ borderColor: '#000' }}>
             <p className="text-[14px] uppercase font-bold leading-none" style={{ color: '#2FA8CA' }}>
