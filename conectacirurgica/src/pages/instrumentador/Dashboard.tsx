@@ -374,7 +374,7 @@ export default function DashboardInstrumentador() {
               </button>
             </div>
             
-            <div className="p-4 overflow-y-auto flex-1 bg-slate-100 flex justify-center">
+            <div className="p-4 overflow-y-auto flex-1 bg-slate-100 flex justify-center items-start">
               <div className="w-full max-w-[400px] rounded-2xl shadow-2xl bg-transparent overflow-hidden">
                 <CardResponsiveWrapper>
                   <CartaoAcionamento 

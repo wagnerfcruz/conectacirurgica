@@ -17,6 +17,7 @@ import Acionamentos from './pages/coordenadora/Acionamentos';
 import Confirmados from './pages/coordenadora/Confirmados';
 import Profissionais from './pages/coordenadora/Profissionais';
 import Documentos from './pages/coordenadora/Documentos';
+import Configuracoes from './pages/coordenadora/Configuracoes';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="confirmados" element={<Confirmados />} />
           <Route path="profissionais" element={<Profissionais />} />
           <Route path="documentos" element={<Documentos />} />
+          <Route path="configuracoes" element={<Configuracoes />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

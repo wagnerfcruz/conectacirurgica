@@ -25,6 +25,7 @@ export default function CoordenadoraLayout() {
     { to: '/coordenadora/confirmados', icon: CheckCircle, label: 'Confirmados' },
     { to: '/coordenadora/profissionais', icon: Users, label: 'Profissionais' },
     { to: '/coordenadora/documentos', icon: FileText, label: 'Documentos' },
+    { to: '/coordenadora/configuracoes', icon: Settings, label: 'Configurações' },
   ];
 
   const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);

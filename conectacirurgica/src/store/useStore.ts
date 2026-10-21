@@ -132,7 +132,7 @@ const initialDemandas: Demanda[] = [
   { 
     id: 1, data: '2026-10-22', hora: '08:00', hospital: 'Hosp. Santa Catarina', procedimento: 'Artroplastia Total de Joelho', medico: 'Dr. Roberto Almeida', status: 'alocando', 
     valorFreelancer: 'R$ 250,00', mc: '896', paciente: 'João da Silva', empresa: 'MEDITEC', convenio: 'Bradesco', 
-    representante: 'Jonathan', retornoOp: 'Não retornado', tipoEvento: 'AGENDAMENTO', confirmacao: 'SEM DADOS', emergencia: false,
+    representante: 'Jonathan', retornoOp: 'Não retornado', tipoEvento: 'AGENDAMENTO', confirmacao: 'SEM DADOS', emergencia: false, observacoes: 'SOMENTE BLOQ.',
     produtosLista: [
       { id: '1', descricao: 'KIT P/ BLOQUEIO * (Enviar todos os tamanhos)', quantidade: '1', codigoReferencia: 'EDGE PAIN' }
     ],
