@@ -13,10 +13,10 @@ import { useStore } from '../store/useStore';
 interface CartaoAcionamentoProps {
   demanda: Demanda;
   instrumentador: Instrumentador;
-  scale?: number;
+  
 }
 
-const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ demanda, instrumentador, scale = 1 }, ref) => {
+const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ demanda, instrumentador }, ref) => {
   const { empresaConfig } = useStore();
   
   const formatDateString = (dateStr: string) => {
@@ -49,8 +49,7 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
   );
 
   return (
-    <div style={{ width: 700 * scale, height: 1280 * scale, overflow: 'hidden' }}>
-      <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: 700, height: 1280 }}>
+    
         <div 
           ref={ref} 
           className="w-[700px] h-[1280px] relative flex items-center justify-center p-6 shrink-0 mx-auto" 
@@ -352,9 +351,7 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
 
           </div>
         </div>
-      </div>
-    </div>
-  );
+      );
 });
 
 CartaoAcionamento.displayName = 'CartaoAcionamento';

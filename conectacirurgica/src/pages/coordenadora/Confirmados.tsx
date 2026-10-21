@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns';
 import html2canvas from 'html2canvas';
 import clsx from 'clsx';
 import CartaoAcionamento from '../../components/CartaoAcionamento';
+import CardResponsiveWrapper from '../../components/CardResponsiveWrapper';
 
 export default function Confirmados() {
   const [selectedCirurgiaId, setSelectedCirurgiaId] = useState<number | null>(null);
@@ -60,8 +61,10 @@ export default function Confirmados() {
     try {
       // Create canvas from the card element
       const canvas = await html2canvas(cardRef.current, {
-        scale: 2, // better quality
-        backgroundColor: '#0f172a' // match slate-900 roughly
+        scale: 2,
+        backgroundColor: '#11223F',
+        windowWidth: 700,
+        windowHeight: 1280
       });
       
       const image = canvas.toDataURL("image/png");
@@ -153,8 +156,18 @@ export default function Confirmados() {
         {/* Cartão Lateral (Demonstrativo) */}
         {selectedCirurgia && (
           <div className="space-y-4 h-fit lg:sticky lg:top-6 mt-6 lg:mt-0 flex flex-col items-center">
-            {/* The visual card to capture */}
-            <div className="w-full max-w-[450px] overflow-hidden rounded-xl shadow-xl">
+            {/* Visual card for UI (Responsive) */}
+            <div className="w-full max-w-[400px] rounded-2xl shadow-2xl bg-transparent overflow-hidden">
+              <CardResponsiveWrapper>
+                <CartaoAcionamento 
+                  demanda={selectedCirurgia} 
+                  instrumentador={getInstData(selectedCirurgia.instrumentadorId) || { id: 0, nome: 'Não alocado', especialidades: [], regiao: '', validado: false, atuacoes: 0, nota: '', disponibilidade: {} }} 
+                />
+              </CardResponsiveWrapper>
+            </div>
+
+            {/* Hidden card for Perfect Export */}
+            <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none' }}>
               <CartaoAcionamento 
                 ref={cardRef} 
                 demanda={selectedCirurgia} 

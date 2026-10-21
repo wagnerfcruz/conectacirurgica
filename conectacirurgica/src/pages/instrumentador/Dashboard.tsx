@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns';
 import { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import CartaoAcionamento from '../../components/CartaoAcionamento';
+import CardResponsiveWrapper from '../../components/CardResponsiveWrapper';
 
 export default function DashboardInstrumentador() {
   const currentUserId = 1; 
@@ -91,7 +92,9 @@ export default function DashboardInstrumentador() {
       const cirurgia = proximasCirurgias.find(c => c.id === selectedCirurgiaId);
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
-        backgroundColor: '#0f172a'
+        backgroundColor: '#11223F',
+        windowWidth: 700,
+        windowHeight: 1280
       });
       
       const image = canvas.toDataURL("image/png");
@@ -372,7 +375,15 @@ export default function DashboardInstrumentador() {
             </div>
             
             <div className="p-4 overflow-y-auto flex-1 bg-slate-100 flex justify-center">
-              <div className="w-full max-w-[450px] overflow-hidden rounded-xl shadow-xl">
+              <div className="w-full max-w-[380px] overflow-hidden rounded-xl shadow-xl bg-[#11223F] flex justify-center pt-4">
+                <div style={{ transform: 'scale(0.5)', transformOrigin: 'top center', height: 1280 * 0.5, width: 700 * 0.5 }}>
+                  <CartaoAcionamento 
+                    demanda={proximasCirurgias.find(c => c.id === selectedCirurgiaId)!} 
+                    instrumentador={currentInstrumentador} 
+                  />
+                </div>
+              </div>
+              <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', width: '700px', height: '1280px', pointerEvents: 'none' }}>
                 <CartaoAcionamento 
                   ref={cardRef} 
                   demanda={proximasCirurgias.find(c => c.id === selectedCirurgiaId)!} 
