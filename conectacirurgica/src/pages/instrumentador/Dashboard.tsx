@@ -375,15 +375,15 @@ export default function DashboardInstrumentador() {
             </div>
             
             <div className="p-4 overflow-y-auto flex-1 bg-slate-100 flex justify-center">
-              <div className="w-full max-w-[380px] overflow-hidden rounded-xl shadow-xl bg-[#11223F] flex justify-center pt-4">
-                <div style={{ transform: 'scale(0.5)', transformOrigin: 'top center', height: 1280 * 0.5, width: 700 * 0.5 }}>
+              <div className="w-full max-w-[400px] rounded-2xl shadow-2xl bg-transparent overflow-hidden">
+                <CardResponsiveWrapper>
                   <CartaoAcionamento 
                     demanda={proximasCirurgias.find(c => c.id === selectedCirurgiaId)!} 
                     instrumentador={currentInstrumentador} 
                   />
-                </div>
+                </CardResponsiveWrapper>
               </div>
-              <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', width: '700px', height: '1280px', pointerEvents: 'none' }}>
+              <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', pointerEvents: 'none' }}>
                 <CartaoAcionamento 
                   ref={cardRef} 
                   demanda={proximasCirurgias.find(c => c.id === selectedCirurgiaId)!} 
