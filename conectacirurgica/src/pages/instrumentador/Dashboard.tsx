@@ -1,7 +1,10 @@
-import { Calendar as CalendarIcon, MapPin, Clock, AlertTriangle, X, FileText } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Clock, AlertTriangle, X, FileText, Check, Download } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { format, parseISO } from 'date-fns';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import CartaoAcionamento from '../../components/CartaoAcionamento';
+import CardResponsiveWrapper from '../../components/CardResponsiveWrapper';
 
 export default function DashboardInstrumentador() {
   const currentUserId = 1; 
@@ -34,7 +37,9 @@ export default function DashboardInstrumentador() {
   const [fileName, setFileName] = useState('');
 
   const [cartaoModalOpen, setCartaoModalOpen] = useState(false);
-    
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
   const formatDate = (dateStr: string) => {
     try {
       return format(parseISO(dateStr), 'dd/MM/yyyy');
@@ -80,7 +85,33 @@ export default function DashboardInstrumentador() {
     setCartaoModalOpen(true);
   };
 
-    return (
+  const handleDownloadImage = async () => {
+    if (!cardRef.current) return;
+    
+    try {
+      const cirurgia = proximasCirurgias.find(c => c.id === selectedCirurgiaId);
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        backgroundColor: '#11223F',
+        useCORS: true,
+        allowTaint: true
+      });
+      
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `Cartao_${cirurgia?.procedimento.replace(/\s+/g, '_')}_${cirurgia?.data}.png`;
+      link.click();
+      
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2000);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      alert('Houve um erro ao gerar a imagem.');
+    }
+  };
+
+  return (
     <div className="p-4 space-y-6 max-w-lg mx-auto pb-8">
       {/* Ações Rápidas & Status */}
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-3">
@@ -240,7 +271,7 @@ export default function DashboardInstrumentador() {
                       onClick={() => handleOpenCartao(d.id)}
                       className="text-xs font-bold text-primary-600 hover:text-primary-800 hover:underline flex items-center gap-1"
                     >
-                      <FileText className="w-3 h-3" /> Ver Detalhes
+                      <FileText className="w-3 h-3" /> Ver Cartão Oficial
                     </button>
                     <button 
                       onClick={() => handleOpenCancel(d.id)}
@@ -337,58 +368,41 @@ export default function DashboardInstrumentador() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-[480px] overflow-hidden flex flex-col my-auto max-h-[90vh]">
             <div className="flex justify-between items-center p-4 border-b border-slate-100 shrink-0">
-              <h2 className="text-lg font-bold text-slate-900">Detalhes da Cirurgia</h2>
+              <h2 className="text-lg font-bold text-slate-900">Cartão de Acionamento</h2>
               <button onClick={() => setCartaoModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-50 flex flex-col gap-4">
-              {(() => {
-                const cirurgia = proximasCirurgias.find(c => c.id === selectedCirurgiaId);
-                if (!cirurgia) return null;
-                return (
-                  <div className="space-y-4">
-                    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                      <h3 className="text-xs font-bold text-slate-500 uppercase mb-1">Médico Responsável</h3>
-                      <p className="font-semibold text-slate-900">{cirurgia.medico}</p>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                        <h3 className="text-xs font-bold text-slate-500 uppercase mb-1">Data</h3>
-                        <p className="font-semibold text-slate-900">{formatDate(cirurgia.data)}</p>
-                      </div>
-                      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                        <h3 className="text-xs font-bold text-slate-500 uppercase mb-1">Horário</h3>
-                        <p className="font-semibold text-slate-900">{cirurgia.hora}</p>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                      <h3 className="text-xs font-bold text-slate-500 uppercase mb-1">Convênio</h3>
-                      <p className="font-semibold text-slate-900">{cirurgia.convenio}</p>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                      <h3 className="text-xs font-bold text-slate-500 uppercase mb-1">Hospital</h3>
-                      <p className="font-semibold text-slate-900">{cirurgia.hospital}</p>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                      <h3 className="text-xs font-bold text-slate-500 uppercase mb-1">Observações</h3>
-                      <p className="font-semibold text-slate-900 text-sm whitespace-pre-wrap">{cirurgia.observacoes || 'Nenhuma observação.'}</p>
-                    </div>
-                  </div>
-                );
-              })()}
+            <div className="p-4 overflow-y-auto flex-1 bg-slate-100 flex justify-center items-start">
+              <div className="w-full max-w-[400px] rounded-2xl shadow-2xl bg-transparent overflow-hidden">
+                <CardResponsiveWrapper>
+                  <CartaoAcionamento 
+                    demanda={proximasCirurgias.find(c => c.id === selectedCirurgiaId)!} 
+                    instrumentador={currentInstrumentador} 
+                  />
+                </CardResponsiveWrapper>
+              </div>
+              <div style={{ position: 'fixed', left: '200vw', top: 0, pointerEvents: 'none', zIndex: -1 }}>
+                <CartaoAcionamento 
+                  ref={cardRef} 
+                  demanda={proximasCirurgias.find(c => c.id === selectedCirurgiaId)!} 
+                  instrumentador={currentInstrumentador} 
+                />
+              </div>
             </div>
 
             <div className="p-4 border-t border-slate-100 bg-white flex justify-end gap-2 shrink-0">
               <button onClick={() => setCartaoModalOpen(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg">
                 Fechar
               </button>
-              
+              <button 
+                onClick={handleDownloadImage} 
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-bold hover:bg-primary-700 flex items-center gap-2"
+              >
+                {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+                {downloadSuccess ? 'Salvo!' : 'Baixar Cartão'}
+              </button>
             </div>
           </div>
         </div>

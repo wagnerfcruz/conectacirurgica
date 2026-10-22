@@ -6,13 +6,10 @@ import html2canvas from 'html2canvas';
 import clsx from 'clsx';
 import CartaoAcionamento from '../../components/CartaoAcionamento';
 import CardResponsiveWrapper from '../../components/CardResponsiveWrapper';
-import DemandaFormModal from '../../components/DemandaFormModal';
-import type { Demanda } from '../../store/useStore';
 
 export default function Confirmados() {
   const [selectedCirurgiaId, setSelectedCirurgiaId] = useState<number | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const { demandas, instrumentadores, updateDemanda } = useStore();
+  const { demandas, instrumentadores } = useStore();
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -56,13 +53,6 @@ export default function Confirmados() {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     });
-  };
-
-  const handleSaveDemanda = (d: Partial<Demanda>) => {
-    if (d.id) {
-      updateDemanda(d.id, d);
-    }
-    setIsEditModalOpen(false);
   };
 
   const handleDownloadImage = async () => {
@@ -157,7 +147,7 @@ export default function Confirmados() {
                     <p className="text-sm font-bold text-slate-800">{getInstName(c.instrumentadorId)}</p>
                   </div>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); setSelectedCirurgiaId(c.id); setIsEditModalOpen(true); }} className="text-primary-600 text-sm font-medium hover:text-primary-800 flex items-center gap-1 border border-primary-100 bg-primary-50 px-3 py-1 rounded-md">Editar / Detalhes</button>
+                <button className="text-primary-600 text-sm font-medium hover:text-primary-800">Ver Cartão</button>
               </div>
             </div>
           ))}
@@ -212,14 +202,6 @@ export default function Confirmados() {
           </div>
         )}
       </div>
-      {isEditModalOpen && selectedCirurgia && (
-        <DemandaFormModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          demanda={selectedCirurgia}
-          onSave={handleSaveDemanda}
-        />
-      )}
     </div>
   );
 }

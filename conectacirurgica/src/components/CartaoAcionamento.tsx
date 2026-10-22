@@ -44,11 +44,11 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
   return (
     <div 
       ref={ref} 
-      className="w-[700px] relative flex flex-col items-center justify-center p-6 shrink-0 mx-auto" 
-      style={{ fontFamily: 'Roboto, sans-serif', boxSizing: 'border-box', backgroundColor: '#11223F' }}
+      className="w-[700px] h-[auto] relative flex items-center justify-center p-6 shrink-0 mx-auto" 
+      style={{ fontFamily: 'Montserrat, Inter, sans-serif', boxSizing: 'border-box', backgroundColor: '#11223F' }}
     >
       {/* Outer Card with curved white background */}
-      <div className="w-full bg-white flex flex-col relative" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+      <div className="w-full h-[auto] bg-white flex flex-col relative" style={{ borderRadius: '24px', overflow: 'hidden' }}>
         
         {/* Curva decorativa superior esquerda (opcional/simplificada com border radius maior na div interna) */}
         
@@ -286,10 +286,10 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
             </div>
 
             {/* Bottom Row: 2 Cols with Borders */}
-            <div className="grid grid-cols-2 gap-4 mt-2 pb-4">
+            <div className="grid grid-cols-2 gap-4 mt-2 h-full pb-4">
               
               {/* Left Column */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 h-full">
                 {/* Valor do Free - Borda destacada */}
                 <div className="rounded-xl border-[2px] p-4 flex items-center gap-4" style={{ borderColor }}>
                   <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: cyanBg, color: darkBlue }}>
@@ -329,7 +329,6 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
                     <p className="font-black uppercase text-[14px] leading-snug mt-1 text-wrap break-words" style={{ color: textColor }}>
                       {fallback(demanda?.observacoes, 'SEM DADOS')}
                     </p>
-                    <div className="h-4 w-full"></div>
                   </div>
                 </div>
                 {/* Emergencia */}
