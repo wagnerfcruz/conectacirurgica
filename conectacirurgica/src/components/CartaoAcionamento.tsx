@@ -45,10 +45,10 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
     <div 
       ref={ref} 
       className="w-[700px] relative flex flex-col items-center justify-center p-6 shrink-0 mx-auto" 
-      style={{ fontFamily: 'Roboto, sans-serif', boxSizing: 'border-box', backgroundColor: '#11223F' }}
+      style={{ fontFamily: 'Roboto, sans-serif', boxSizing: 'border-box', backgroundColor: '#11223F', color: textColor, borderColor }}
     >
       {/* Outer Card with curved white background */}
-      <div className="w-full bg-white flex flex-col relative" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+      <div className="w-full bg-white flex flex-col relative" style={{ borderRadius: '24px', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
         
         {/* Curva decorativa superior esquerda (opcional/simplificada com border radius maior na div interna) */}
         
@@ -174,8 +174,8 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
           
           {/* Reagendamento Banner */}
           {isReagendamento && (
-            <div className="bg-yellow-400 -mx-8 py-2 px-8 my-2">
-              <p className="font-black text-[18px] uppercase text-black">REAGENDAMENTO</p>
+            <div className="bg-yellow-400 -mx-8 py-2 px-8 my-2" style={{ backgroundColor: '#FACC15' }}>
+              <p className="font-black text-[18px] uppercase text-black" style={{ color: '#000000' }}>REAGENDAMENTO</p>
             </div>
           )}
           {!isReagendamento && <div className="border-b" style={{ borderColor }}></div>}
@@ -216,7 +216,7 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
               </div>
               <p className="font-black uppercase text-[16px]" style={{ color: textColor }}>PRODUTOS / MATERIAIS</p>
             </div>
-            <div className="ml-14 bg-slate-50 rounded-xl p-3 text-[12px] font-medium" style={{ color: textColor }}>
+            <div className="ml-14 bg-slate-50 rounded-xl p-3 text-[12px] font-medium" style={{ backgroundColor: '#F8FAFC', color: textColor }}>
               {demanda?.produtosLista && demanda.produtosLista.length > 0 ? (
                 demanda.produtosLista.map((p, i) => (
                   <p key={i} className="mb-1 last:mb-0">
@@ -240,7 +240,7 @@ const CartaoAcionamento = forwardRef<HTMLDivElement, CartaoAcionamentoProps>(({ 
               </div>
               <p className="font-black uppercase text-[16px]" style={{ color: textColor }}>EQUIPAMENTOS / SERVIÇOS</p>
             </div>
-            <div className="ml-14 bg-slate-50 rounded-xl p-3 text-[12px] font-medium" style={{ color: textColor }}>
+            <div className="ml-14 bg-slate-50 rounded-xl p-3 text-[12px] font-medium" style={{ backgroundColor: '#F8FAFC', color: textColor }}>
               {demanda?.equipamentosLista && demanda.equipamentosLista.length > 0 ? (
                 demanda.equipamentosLista.map((e, i) => (
                   <p key={i} className="mb-1 last:mb-0">
