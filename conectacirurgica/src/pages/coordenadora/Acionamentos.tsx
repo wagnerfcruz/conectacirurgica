@@ -266,8 +266,13 @@ Valor do Free: ${selectedDemanda.valorFreelancer || 'A combinar'}
           <>
             <div className="p-6 border-b border-slate-100 shrink-0">
               <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">{selectedDemanda.procedimento}</h2>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <h2 className="text-xl font-bold text-slate-900">{selectedDemanda.procedimento}</h2>
+                    <button onClick={() => openEditDemanda(selectedDemanda)} className="bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
+                      <Edit2 className="w-4 h-4" /> Editar / Ver Detalhes
+                    </button>
+                  </div>
                   <p className="text-slate-500 text-sm">Equipe: {selectedDemanda.medico}</p>
                   {selectedDemanda.valorFreelancer && (
                     <p className="text-emerald-600 font-bold text-sm mt-1">Valor do Plantão: {selectedDemanda.valorFreelancer}</p>
