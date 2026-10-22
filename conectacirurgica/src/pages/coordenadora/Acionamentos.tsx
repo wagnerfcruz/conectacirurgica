@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { useStore } from '../../store/useStore';
 import type { Demanda } from '../../store/useStore';
 import { format, parseISO } from 'date-fns';
-import { exportElementAsPng } from '../../utils/exportElementAsPng';
+import html2canvas from 'html2canvas';
 
 export default function Acionamentos() {
   const { demandas, instrumentadores, enviarConvite, deleteDemanda, deleteDemandas, addDemandaManual, updateDemanda } = useStore();
@@ -151,14 +151,14 @@ export default function Acionamentos() {
   const handleDownloadPNG = async () => {
     if (!cardRef.current) return;
     try {
-      await exportElementAsPng(
-        cardRef.current,
-        `Acionamento_${selectedDemanda?.mc || 'Sem_MC'}.png`,
-        '#FFFFFF'
-      );
+      const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true, allowTaint: true });
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `Acionamento_${selectedDemanda?.mc || 'Sem_MC'}.png`;
+      link.href = dataUrl;
+      link.click();
     } catch (err) {
       console.error('Erro ao gerar PNG', err);
-      alert('Houve um erro ao gerar a imagem.');
     }
   };
 

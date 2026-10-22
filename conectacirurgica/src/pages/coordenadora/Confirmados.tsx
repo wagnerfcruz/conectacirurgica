@@ -2,11 +2,11 @@ import { Calendar, MapPin, Clock, Download, Copy, Check } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useStore } from '../../store/useStore';
 import { format, parseISO } from 'date-fns';
+import html2canvas from 'html2canvas';
 import clsx from 'clsx';
 import CartaoAcionamento from '../../components/CartaoAcionamento';
 import CardResponsiveWrapper from '../../components/CardResponsiveWrapper';
 import DemandaFormModal from '../../components/DemandaFormModal';
-import { exportElementAsPng } from '../../utils/exportElementAsPng';
 import type { Demanda } from '../../store/useStore';
 
 export default function Confirmados() {
@@ -69,11 +69,19 @@ export default function Confirmados() {
     if (!cardRef.current || !selectedCirurgia) return;
     
     try {
-      await exportElementAsPng(
-        cardRef.current,
-        `Acionamento_${selectedCirurgia.procedimento.replace(/\s+/g, '_')}_${selectedCirurgia.data}.png`,
-        '#11223F'
-      );
+      // Create canvas from the card element
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        backgroundColor: '#11223F',
+        useCORS: true,
+        allowTaint: true
+      });
+      
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `Acionamento_${selectedCirurgia.procedimento.replace(/\s+/g, '_')}_${selectedCirurgia.data}.png`;
+      link.click();
       
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 2000);
